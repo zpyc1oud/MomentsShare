@@ -1,0 +1,23 @@
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
+
+from moments.models import Moment
+
+User = settings.AUTH_USER_MODEL
+
+
+class Comment(models.Model):
+    moment = models.ForeignKey(Moment, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    content = models.TextField()
+    parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies")
+    created_at = models.DateTimeField(default=timezone.now)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+
+    def __str__(self):
+        return f"{self.author} on {self.moment_id}"
+
