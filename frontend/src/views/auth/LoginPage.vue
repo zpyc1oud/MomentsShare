@@ -279,9 +279,10 @@ const handleLogin = async () => {
       &:-webkit-autofill:hover,
       &:-webkit-autofill:focus,
       &:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+        -webkit-box-shadow: 0 0 0 1000px white inset !important;
         -webkit-text-fill-color: $text-primary !important;
         transition: background-color 5000s ease-in-out 0s;
+        background-color: white !important;
         caret-color: $text-primary;
       }
     }
@@ -292,7 +293,14 @@ const handleLogin = async () => {
       font-size: 18px;
       display: flex;
       align-items: center;
-      height: 100%;
+      justify-content: center;
+      line-height: 1;
+      
+      .van-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
     
     :deep(.van-field__right-icon) {
@@ -301,7 +309,14 @@ const handleLogin = async () => {
       cursor: pointer;
       display: flex;
       align-items: center;
-      height: 100%;
+      justify-content: center;
+      line-height: 1;
+      
+      .van-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
       
       &:hover {
         color: $text-primary;
