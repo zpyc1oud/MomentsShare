@@ -85,8 +85,9 @@ const handleBackdropClick = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(183, 168, 214, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,9 +97,11 @@ const handleBackdropClick = () => {
 
 .modal {
   width: 100%;
-  background: $bg-card;
+  background: $glass-bg-heavy;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
   border-radius: $radius-xl;
-  border: 1px solid $border-color;
+  border: $glass-border;
   box-shadow: $shadow-lg;
   overflow: hidden;
   
@@ -119,7 +122,7 @@ const handleBackdropClick = () => {
     align-items: center;
     justify-content: space-between;
     padding: $spacing-md $spacing-lg;
-    border-bottom: 1px solid $border-light;
+    border-bottom: 1px solid rgba($lavender, 0.2);
   }
   
   &__title {
@@ -129,14 +132,16 @@ const handleBackdropClick = () => {
   }
   
   &__close {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    background: $glass-bg;
+    border: $glass-border-light;
     color: $text-muted;
-    transition: all $transition-fast;
+    transition: all $transition-normal;
     
     svg {
       width: 18px;
@@ -144,8 +149,9 @@ const handleBackdropClick = () => {
     }
     
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.8);
       color: $text-primary;
+      transform: rotate(90deg);
     }
   }
   
@@ -158,16 +164,16 @@ const handleBackdropClick = () => {
     justify-content: flex-end;
     gap: $spacing-sm;
     padding: $spacing-md $spacing-lg;
-    border-top: 1px solid $border-light;
+    border-top: 1px solid rgba($lavender, 0.2);
   }
 }
 
 .modal-enter-active,
 .modal-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   
   .modal {
-    transition: all 0.3s ease;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -176,8 +182,7 @@ const handleBackdropClick = () => {
   opacity: 0;
   
   .modal {
-    transform: scale(0.95) translateY(20px);
+    transform: scale(0.9) translateY(30px);
   }
 }
 </style>
-

@@ -26,15 +26,19 @@
           </div>
           
           <!-- 空状态 -->
-          <div v-else-if="moments.length === 0" class="empty-state">
-            <span class="empty-state__icon">📭</span>
-            <h3 class="empty-state__title">暂无动态</h3>
-            <p class="empty-state__desc">快去添加好友，查看他们的精彩分享吧</p>
+          <div v-else-if="moments.length === 0" class="empty-container">
+            <div class="empty-state">
+              <span class="empty-state__icon">📭</span>
+              <h3 class="empty-state__title">暂无动态</h3>
+              <p class="empty-state__desc">快去添加好友，查看他们的精彩分享吧</p>
+            </div>
           </div>
           
           <!-- 加载完成 -->
           <div v-else-if="!hasMore" class="load-complete">
-            没有更多了
+            <span class="load-complete__line"></span>
+            <span class="load-complete__text">没有更多了</span>
+            <span class="load-complete__line"></span>
           </div>
         </div>
       </PullRefresh>
@@ -111,21 +115,32 @@ onMounted(() => {
 }
 
 .nav-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: $glass-border-light;
   border-radius: 50%;
-  transition: background $transition-fast;
+  transition: all $transition-normal;
+  box-shadow: $shadow-sm;
   
   svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    color: $text-primary;
   }
   
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.7);
+    transform: rotate(180deg);
+  }
+  
+  &:active {
+    transform: scale(0.95);
   }
 }
 
@@ -140,11 +155,27 @@ onMounted(() => {
   padding: $spacing-lg;
 }
 
+.empty-container {
+  padding: $spacing-2xl $spacing-md;
+}
+
 .load-complete {
-  padding: $spacing-lg;
-  text-align: center;
-  font-size: $font-size-sm;
-  color: $text-muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+  padding: $spacing-xl $spacing-lg;
+  
+  &__line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba($lavender, 0.3), transparent);
+  }
+  
+  &__text {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    white-space: nowrap;
+  }
 }
 </style>
-

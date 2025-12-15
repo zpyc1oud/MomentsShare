@@ -47,13 +47,17 @@ defineEmits(['back'])
   align-items: center;
   justify-content: space-between;
   padding: 0 $spacing-md;
-  background: $bg-dark;
-  border-bottom: 1px solid $border-light;
+  background: $glass-bg-heavy;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border-bottom: $glass-border-light;
   z-index: $z-navbar;
-  transition: background $transition-normal;
+  transition: all $transition-normal;
   
   &--transparent {
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-bottom-color: transparent;
   }
   
@@ -73,22 +77,29 @@ defineEmits(['back'])
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
+    background: $glass-bg;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: $glass-border-light;
     border-radius: 50%;
-    transition: background $transition-fast;
+    transition: all $transition-normal;
+    box-shadow: $shadow-sm;
     
     svg {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
+      color: $text-primary;
     }
     
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.7);
+      transform: translateX(-2px);
     }
     
     &:active {
-      background: rgba(255, 255, 255, 0.15);
+      transform: scale(0.95);
     }
   }
   
@@ -106,4 +117,3 @@ defineEmits(['back'])
   }
 }
 </style>
-

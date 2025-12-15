@@ -3,27 +3,37 @@
     <div class="profile-page">
       <!-- 个人信息头部 -->
       <div class="profile-header">
-        <div class="profile-bg"></div>
+        <!-- 渐变背景 -->
+        <div class="profile-bg">
+          <div class="profile-bg__blob profile-bg__blob--1"></div>
+          <div class="profile-bg__blob profile-bg__blob--2"></div>
+        </div>
+        
         <div class="profile-info">
-          <img :src="user?.avatar || '/default-avatar.png'" class="profile-avatar" />
+          <div class="avatar-container">
+            <img :src="user?.avatar || '/default-avatar.png'" class="profile-avatar" />
+          </div>
           <h2 class="profile-name">{{ user?.nickname }}</h2>
           <p class="profile-username">@{{ user?.username }}</p>
         </div>
+        
         <button class="edit-btn" @click="$router.push('/profile/edit')">
           编辑资料
         </button>
       </div>
       
-      <!-- 统计信息 -->
+      <!-- 统计信息 - 毛玻璃卡片 -->
       <div class="profile-stats">
         <div class="stat-item">
           <span class="stat-value">{{ stats.moments }}</span>
           <span class="stat-label">动态</span>
         </div>
+        <div class="stat-divider"></div>
         <div class="stat-item">
           <span class="stat-value">{{ stats.friends }}</span>
           <span class="stat-label">好友</span>
         </div>
+        <div class="stat-divider"></div>
         <div class="stat-item">
           <span class="stat-value">{{ stats.likes }}</span>
           <span class="stat-label">获赞</span>
@@ -69,7 +79,8 @@
           </div>
         </div>
         <div v-else class="empty-moments">
-          还没有发布动态
+          <span class="empty-icon">📝</span>
+          <p>还没有发布动态</p>
         </div>
       </div>
     </div>
@@ -105,30 +116,55 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .profile-page {
   min-height: 100%;
+  padding-bottom: $spacing-lg;
 }
 
 .profile-header {
   position: relative;
-  padding: 60px $spacing-lg $spacing-lg;
+  padding: 70px $spacing-lg $spacing-lg;
   text-align: center;
 }
 
+// 渐变背景
 .profile-bg {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 120px;
-  background: $primary-gradient;
+  height: 140px;
+  background: $button-gradient;
+  overflow: hidden;
+  
+  &__blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    
+    &--1 {
+      width: 150px;
+      height: 150px;
+      background: rgba($pink-primary, 0.5);
+      top: -30px;
+      right: -20px;
+    }
+    
+    &--2 {
+      width: 120px;
+      height: 120px;
+      background: rgba($baby-blue, 0.4);
+      bottom: -20px;
+      left: 20%;
+    }
+  }
   
   &::after {
     content: '';
     position: absolute;
-    bottom: -30px;
+    bottom: -40px;
     left: 0;
     right: 0;
-    height: 60px;
-    background: linear-gradient(to bottom, transparent, $bg-dark);
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, rgba(253, 247, 249, 0.8), #FDF7F9);
   }
 }
 
@@ -137,20 +173,28 @@ onMounted(async () => {
   z-index: 1;
 }
 
+.avatar-container {
+  display: inline-block;
+  padding: 4px;
+  background: $glass-bg-heavy;
+  border-radius: 50%;
+  box-shadow: $shadow-md;
+}
+
 .profile-avatar {
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  border: 4px solid $bg-dark;
   object-fit: cover;
-  background: $bg-card;
+  background: linear-gradient(135deg, $pink-light, $baby-blue);
+  display: block;
 }
 
 .profile-name {
   font-size: $font-size-xl;
   font-weight: $font-weight-bold;
   color: $text-primary;
-  margin-top: $spacing-sm;
+  margin-top: $spacing-md;
 }
 
 .profile-username {
@@ -163,40 +207,71 @@ onMounted(async () => {
   position: absolute;
   top: $spacing-md;
   right: $spacing-md;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 18px;
+  background: $glass-bg-heavy;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
   border-radius: $radius-full;
   font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
   color: $text-primary;
-  backdrop-filter: blur(4px);
+  box-shadow: $shadow-sm;
+  transition: all $transition-normal;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
 }
 
+// 统计卡片 - 毛玻璃效果
 .profile-stats {
   display: flex;
   justify-content: center;
-  gap: $spacing-xl;
-  padding: $spacing-md 0;
-  border-bottom: 1px solid $border-light;
+  align-items: center;
+  gap: $spacing-md;
+  margin: 0 $spacing-md;
+  padding: $spacing-lg;
+  background: $glass-bg;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(180deg, transparent, rgba($lavender, 0.3), transparent);
 }
 
 .stat-value {
-  font-size: $font-size-xl;
+  font-size: $font-size-2xl;
   font-weight: $font-weight-bold;
   color: $text-primary;
+  background: $button-gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .stat-label {
   font-size: $font-size-xs;
   color: $text-muted;
+  margin-top: 4px;
 }
 
+// 菜单列表
 .profile-menu {
   padding: $spacing-md;
 }
@@ -206,14 +281,23 @@ onMounted(async () => {
   align-items: center;
   gap: $spacing-md;
   padding: $spacing-md;
-  background: $bg-card;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: $glass-border-light;
   border-radius: $radius-lg;
   margin-bottom: $spacing-sm;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: all $transition-normal;
+  box-shadow: $shadow-sm;
   
   &:hover {
-    background: $bg-card-hover;
+    background: $glass-bg-heavy;
+    transform: translateX(4px);
+  }
+  
+  &:active {
+    transform: scale(0.98);
   }
 }
 
@@ -228,11 +312,17 @@ onMounted(async () => {
 }
 
 .menu-arrow {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   color: $text-muted;
+  transition: transform $transition-normal;
 }
 
+.menu-item:hover .menu-arrow {
+  transform: translateX(4px);
+}
+
+// 我的动态
 .my-moments {
   padding: $spacing-md;
 }
@@ -247,20 +337,33 @@ onMounted(async () => {
 .moments-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
+  gap: 6px;
 }
 
 .moment-thumb {
   aspect-ratio: 1;
-  border-radius: $radius-sm;
+  border-radius: $radius-md;
   overflow: hidden;
   cursor: pointer;
-  background: $bg-card;
+  background: $glass-bg;
+  backdrop-filter: blur(8px);
+  border: $glass-border-light;
+  transition: all $transition-normal;
   
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform $transition-normal;
+  }
+  
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: $shadow-md;
+    
+    img {
+      transform: scale(1.1);
+    }
   }
 }
 
@@ -274,13 +377,23 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   text-align: center;
+  line-height: 1.4;
 }
 
 .empty-moments {
   text-align: center;
-  padding: $spacing-xl;
+  padding: $spacing-2xl;
   color: $text-muted;
-  font-size: $font-size-sm;
+  
+  .empty-icon {
+    font-size: 40px;
+    display: block;
+    margin-bottom: $spacing-sm;
+    opacity: 0.6;
+  }
+  
+  p {
+    font-size: $font-size-sm;
+  }
 }
 </style>
-

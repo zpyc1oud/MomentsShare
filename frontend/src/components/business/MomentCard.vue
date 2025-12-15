@@ -1,8 +1,8 @@
 <template>
-  <div class="moment-card card card--hover" @click="$emit('click')">
+  <div class="moment-card" @click="$emit('click')">
     <!-- 作者信息 -->
     <div class="moment-header">
-      <img :src="authorAvatar" :alt="moment.author?.nickname" class="avatar" />
+      <img :src="authorAvatar" :alt="moment.author?.nickname" class="moment-avatar" />
       <div class="moment-author">
         <span class="moment-author__name">{{ moment.author?.nickname }}</span>
         <span class="moment-author__time">{{ formatTime(moment.created_at) }}</span>
@@ -40,7 +40,7 @@
     
     <!-- 标签 -->
     <div v-if="moment.tags?.length" class="moment-tags">
-      <span v-for="tag in moment.tags" :key="tag.id" class="tag">
+      <span v-for="tag in moment.tags" :key="tag.id" class="moment-tag">
         # {{ tag.name }}
       </span>
     </div>
@@ -110,7 +110,25 @@ const previewImage = (index) => {
 
 <style lang="scss" scoped>
 .moment-card {
+  background: $glass-bg;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
   cursor: pointer;
+  transition: all $transition-normal;
+  box-shadow: $shadow-sm;
+  
+  &:hover {
+    background: $glass-bg-heavy;
+    transform: translateY(-4px);
+    box-shadow: $shadow-md;
+  }
+  
+  &:active {
+    transform: translateY(-2px) scale(0.99);
+  }
 }
 
 .moment-header {
@@ -118,6 +136,16 @@ const previewImage = (index) => {
   align-items: center;
   gap: $spacing-sm;
   margin-bottom: $spacing-sm;
+}
+
+.moment-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: linear-gradient(135deg, $pink-light, $baby-blue);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: $shadow-sm;
 }
 
 .moment-author {
@@ -138,7 +166,7 @@ const previewImage = (index) => {
 
 .moment-content {
   font-size: $font-size-base;
-  line-height: 1.6;
+  line-height: 1.7;
   color: $text-primary;
   margin-bottom: $spacing-sm;
 }
@@ -186,11 +214,17 @@ const previewImage = (index) => {
 .moment-image {
   position: relative;
   overflow: hidden;
+  border-radius: $radius-sm;
   
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform $transition-normal;
+  }
+  
+  &:hover img {
+    transform: scale(1.05);
   }
   
   .image-more {
@@ -199,13 +233,14 @@ const previewImage = (index) => {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba($lavender, 0.6);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: $font-size-xl;
     font-weight: $font-weight-bold;
-    color: $text-primary;
+    color: $text-white;
   }
 }
 
@@ -214,6 +249,7 @@ const previewImage = (index) => {
   overflow: hidden;
   margin-bottom: $spacing-sm;
   aspect-ratio: 16/9;
+  box-shadow: $shadow-sm;
 }
 
 .moment-tags {
@@ -223,11 +259,22 @@ const previewImage = (index) => {
   margin-bottom: $spacing-sm;
 }
 
+.moment-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: $font-size-sm;
+  border-radius: $radius-full;
+  background: rgba($lavender, 0.2);
+  color: $lavender;
+  backdrop-filter: blur(8px);
+}
+
 .moment-actions {
   display: flex;
   gap: $spacing-lg;
   padding-top: $spacing-sm;
-  border-top: 1px solid $border-light;
+  border-top: 1px solid rgba($lavender, 0.15);
 }
 
 .action-btn {
@@ -236,7 +283,9 @@ const previewImage = (index) => {
   gap: 6px;
   color: $text-muted;
   font-size: $font-size-sm;
-  transition: color $transition-fast;
+  padding: 6px 12px;
+  border-radius: $radius-full;
+  transition: all $transition-normal;
   
   svg {
     width: 18px;
@@ -244,8 +293,12 @@ const previewImage = (index) => {
   }
   
   &:hover {
-    color: $primary-color;
+    color: $pink-primary;
+    background: rgba($pink-primary, 0.1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
   }
 }
 </style>
-

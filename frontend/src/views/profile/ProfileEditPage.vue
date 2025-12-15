@@ -215,10 +215,12 @@ const changePhone = async () => {
 
 .save-btn {
   padding: 8px 16px;
-  background: $primary-gradient;
+  background: $button-gradient;
   border-radius: $radius-full;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
+  color: $text-white;
+  box-shadow: $shadow-sm;
   
   &:disabled {
     opacity: 0.5;
@@ -327,14 +329,14 @@ const changePhone = async () => {
 
 .form-input {
   padding: 12px;
-  background: $bg-input;
-  border: 1px solid $border-color;
+  background: $glass-bg-heavy;
+  border: $glass-border;
   border-radius: $radius-md;
   color: $text-primary;
   font-size: $font-size-base;
   
   &:focus {
-    border-color: $primary-color;
+    border-color: rgba($pink-primary, 0.5);
   }
 }
 </style>

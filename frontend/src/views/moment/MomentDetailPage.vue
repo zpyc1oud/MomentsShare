@@ -302,7 +302,7 @@ onMounted(() => {
 .reply-list {
   margin-top: $spacing-sm;
   padding: $spacing-sm;
-  background: $bg-input;
+  background: rgba($lavender, 0.1);
   border-radius: $radius-sm;
 }
 
@@ -316,7 +316,7 @@ onMounted(() => {
 }
 
 .reply-author {
-  color: $primary-color;
+  color: $pink-primary;
   margin-right: 4px;
 }
 
@@ -335,31 +335,33 @@ onMounted(() => {
   display: flex;
   gap: $spacing-sm;
   padding: $spacing-md;
-  background: $bg-card;
-  border-top: 1px solid $border-light;
+  background: $glass-bg-heavy;
+  backdrop-filter: $glass-blur;
+  border-top: $glass-border-light;
 }
 
 .comment-input {
   flex: 1;
   padding: 12px 16px;
-  background: $bg-input;
-  border: 1px solid $border-color;
+  background: rgba(255, 255, 255, 0.8);
+  border: $glass-border;
   border-radius: $radius-full;
   color: $text-primary;
   font-size: $font-size-sm;
   
   &:focus {
-    border-color: $primary-color;
+    border-color: rgba($pink-primary, 0.5);
   }
 }
 
 .send-btn {
   padding: 12px 20px;
-  background: $primary-gradient;
+  background: $button-gradient;
   border-radius: $radius-full;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: $text-primary;
+  color: $text-white;
+  box-shadow: $shadow-sm;
   
   &:disabled {
     opacity: 0.5;

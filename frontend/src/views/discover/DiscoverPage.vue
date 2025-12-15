@@ -161,7 +161,7 @@ const goToDetail = (id) => {
   display: flex;
   gap: $spacing-sm;
   padding: $spacing-md;
-  background: $bg-dark;
+  background: transparent;
 }
 
 .search-input-wrapper {
@@ -181,14 +181,15 @@ const goToDetail = (id) => {
   .search-input {
     width: 100%;
     padding: 12px 12px 12px 44px;
-    background: $bg-input;
-    border: 1px solid $border-color;
+    background: $glass-bg-heavy;
+    backdrop-filter: $glass-blur;
+    border: $glass-border;
     border-radius: $radius-full;
     color: $text-primary;
     font-size: $font-size-base;
     
     &:focus {
-      border-color: $primary-color;
+      border-color: rgba($pink-primary, 0.5);
     }
   }
 }
@@ -199,8 +200,9 @@ const goToDetail = (id) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $bg-input;
-  border: 1px solid $border-color;
+  background: $glass-bg-heavy;
+  backdrop-filter: blur(10px);
+  border: $glass-border;
   border-radius: $radius-md;
   color: $text-secondary;
   
@@ -212,8 +214,9 @@ const goToDetail = (id) => {
 
 .filter-panel {
   padding: $spacing-md;
-  background: $bg-card;
-  border-bottom: 1px solid $border-light;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  border-bottom: $glass-border-light;
 }
 
 .filter-group {
@@ -230,14 +233,14 @@ const goToDetail = (id) => {
 .filter-input {
   width: 100%;
   padding: 10px 12px;
-  background: $bg-input;
-  border: 1px solid $border-color;
+  background: $glass-bg-heavy;
+  border: $glass-border;
   border-radius: $radius-sm;
   color: $text-primary;
   font-size: $font-size-sm;
   
   &:focus {
-    border-color: $primary-color;
+    border-color: rgba($pink-primary, 0.5);
   }
 }
 

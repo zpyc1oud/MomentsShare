@@ -126,8 +126,8 @@ const onTouchEnd = async () => {
   &__spinner {
     width: 18px;
     height: 18px;
-    border: 2px solid $border-color;
-    border-top-color: $primary-color;
+    border: 2px solid rgba($lavender, 0.3);
+    border-top-color: $pink-primary;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }

@@ -1,5 +1,6 @@
 // ========================================
 // MomentsShare 全局样式
+// 马卡龙色系 / 毛玻璃拟态设计
 // ========================================
 
 // === Reset ===
@@ -20,9 +21,9 @@ html {
 body {
   font-family: $font-family;
   font-size: $font-size-base;
-  line-height: 1.5;
+  line-height: 1.6;
   color: $text-primary;
-  background-color: $bg-dark;
+  background-color: $bg-base;
   overflow: hidden;
 }
 
@@ -76,11 +77,11 @@ ol {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
+  background: rgba($lavender, 0.4);
+  border-radius: 4px;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba($lavender, 0.6);
   }
 }
 
@@ -152,45 +153,85 @@ ol {
   transform: scale(0.9);
 }
 
+// === 毛玻璃卡片基础样式 ===
+.glass-card {
+  background: $glass-bg;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+}
+
+.glass-card-heavy {
+  background: $glass-bg-heavy;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+}
+
 // === 按钮基础样式 ===
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
+  padding: 14px 28px;
   border-radius: $radius-full;
   font-weight: $font-weight-medium;
-  transition: all $transition-fast;
+  transition: all $transition-normal;
+  position: relative;
+  overflow: hidden;
   
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
   
   &--primary {
-    background: $primary-gradient;
-    color: $text-primary;
-    box-shadow: $shadow-glow;
+    background: $button-gradient;
+    color: $text-white;
+    box-shadow: $shadow-button, $shadow-inset;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 100%);
+      border-radius: $radius-full $radius-full 0 0;
+    }
     
     &:hover {
-      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: $shadow-glow, $shadow-inset;
+    }
+    
+    &:active {
+      transform: translateY(0) scale(0.98);
     }
   }
   
   &--secondary {
-    background: $bg-input;
+    background: $glass-bg-heavy;
+    backdrop-filter: $glass-blur;
+    -webkit-backdrop-filter: $glass-blur;
     color: $text-primary;
-    border: 1px solid $border-color;
+    border: $glass-border;
+    box-shadow: $shadow-sm;
     
     &:hover {
-      background: $bg-card-hover;
+      background: rgba(255, 255, 255, 0.8);
     }
   }
   
   &--text {
-    color: $primary-color;
+    color: $pink-primary;
     
     &:hover {
-      color: $primary-light;
+      color: $lavender;
     }
   }
   
@@ -199,38 +240,47 @@ ol {
   }
   
   &--small {
-    padding: 8px 16px;
+    padding: 10px 20px;
     font-size: $font-size-sm;
   }
   
   &--large {
-    padding: 16px 32px;
+    padding: 18px 36px;
     font-size: $font-size-lg;
   }
   
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
   }
 }
 
-// === 输入框基础样式 ===
+// === 输入框基础样式 - 毛玻璃效果 ===
 .input-wrapper {
   position: relative;
   width: 100%;
   
   .input {
     width: 100%;
-    padding: 14px 16px;
-    background: $bg-input;
-    border: 1px solid $border-color;
-    border-radius: $radius-md;
+    padding: 16px 20px;
+    background: $glass-bg-heavy;
+    backdrop-filter: $glass-blur;
+    -webkit-backdrop-filter: $glass-blur;
+    border: $glass-border;
+    border-radius: $radius-lg;
     color: $text-primary;
-    transition: all $transition-fast;
+    font-size: $font-size-base;
+    transition: all $transition-normal;
     
     &:focus {
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+      border-color: rgba($pink-primary, 0.6);
+      box-shadow: 0 0 0 4px rgba($pink-primary, 0.1);
+      background: rgba(255, 255, 255, 0.75);
+    }
+    
+    &::placeholder {
+      color: $text-placeholder;
     }
     
     &--error {
@@ -240,30 +290,34 @@ ol {
   
   .input-icon {
     position: absolute;
-    left: 16px;
+    left: 18px;
     top: 50%;
     transform: translateY(-50%);
     color: $text-muted;
+    font-size: 16px;
   }
   
   .input-icon + .input {
-    padding-left: 44px;
+    padding-left: 50px;
   }
 }
 
-// === 卡片样式 ===
+// === 卡片样式 - 毛玻璃效果 ===
 .card {
-  background: $bg-card;
+  background: $glass-bg;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
   border-radius: $radius-lg;
   padding: $spacing-md;
-  border: 1px solid $border-light;
+  border: $glass-border;
+  box-shadow: $shadow-sm;
   
   &--hover {
     transition: all $transition-normal;
     
     &:hover {
-      background: $bg-card-hover;
-      transform: translateY(-2px);
+      background: $glass-bg-heavy;
+      transform: translateY(-4px);
       box-shadow: $shadow-md;
     }
   }
@@ -271,11 +325,13 @@ ol {
 
 // === 头像样式 ===
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  background: $bg-input;
+  background: linear-gradient(135deg, $pink-light, $baby-blue);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: $shadow-sm;
   
   &--sm {
     width: 32px;
@@ -303,31 +359,43 @@ ol {
   padding: 0 6px;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
-  background: $error-color;
-  color: $text-primary;
+  background: linear-gradient(135deg, $pink-primary, $lavender);
+  color: $text-white;
   border-radius: $radius-full;
+  box-shadow: 0 2px 8px rgba($pink-primary, 0.4);
 }
 
 // === 标签样式 ===
 .tag {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 6px 14px;
   font-size: $font-size-sm;
   border-radius: $radius-full;
-  background: rgba($primary-color, 0.15);
-  color: $primary-light;
+  background: rgba($lavender, 0.2);
+  color: $lavender;
+  backdrop-filter: blur(10px);
   
   &--outline {
     background: transparent;
-    border: 1px solid $primary-color;
+    border: 1px solid $lavender;
+  }
+  
+  &--pink {
+    background: rgba($pink-primary, 0.2);
+    color: $pink-primary;
+  }
+  
+  &--blue {
+    background: rgba($baby-blue, 0.3);
+    color: #5A9DBF;
   }
 }
 
 // === 分割线 ===
 .divider {
   height: 1px;
-  background: $border-color;
+  background: linear-gradient(90deg, transparent, rgba($lavender, 0.3), transparent);
   margin: $spacing-md 0;
 }
 
@@ -337,24 +405,188 @@ ol {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: $spacing-xl;
+  padding: $spacing-2xl;
   color: $text-muted;
   
   &__icon {
-    font-size: 48px;
+    font-size: 56px;
     margin-bottom: $spacing-md;
-    opacity: 0.5;
+    opacity: 0.7;
   }
   
   &__title {
     font-size: $font-size-lg;
     font-weight: $font-weight-medium;
+    color: $text-secondary;
     margin-bottom: $spacing-sm;
   }
   
   &__desc {
     font-size: $font-size-sm;
     text-align: center;
+    line-height: 1.6;
   }
 }
 
+// === 弥散光斑背景装饰 ===
+.light-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  
+  &--pink {
+    background: rgba($pink-primary, 0.4);
+  }
+  
+  &--lavender {
+    background: rgba($lavender, 0.4);
+  }
+  
+  &--blue {
+    background: rgba($baby-blue, 0.4);
+  }
+}
+
+// ========================================
+// Vant 主题覆盖 - 马卡龙色系适配
+// ========================================
+
+:root {
+  // 主题色
+  --van-primary-color: #{$pink-primary};
+  --van-success-color: #{$success-color};
+  --van-danger-color: #{$error-color};
+  --van-warning-color: #{$warning-color};
+  
+  // 文字色
+  --van-text-color: #{$text-primary};
+  --van-text-color-2: #{$text-secondary};
+  --van-text-color-3: #{$text-muted};
+  
+  // 背景色
+  --van-background: transparent;
+  --van-background-2: #{$glass-bg};
+  --van-background-3: #{$glass-bg-heavy};
+  
+  // 边框色
+  --van-border-color: #{$border-color};
+  
+  // 圆角
+  --van-radius-sm: #{$radius-sm};
+  --van-radius-md: #{$radius-md};
+  --van-radius-lg: #{$radius-lg};
+  
+  // 按钮
+  --van-button-primary-background: #{$button-gradient};
+  --van-button-primary-border-color: transparent;
+  --van-button-default-background: #{$glass-bg-heavy};
+  --van-button-default-border-color: rgba(255, 255, 255, 0.5);
+  --van-button-round-radius: #{$radius-full};
+  
+  // 表单
+  --van-field-input-text-color: #{$text-primary};
+  --van-field-placeholder-text-color: #{$text-placeholder};
+  --van-field-error-message-color: #{$error-color};
+  --van-field-label-color: #{$text-secondary};
+  
+  // Cell
+  --van-cell-background: transparent;
+  --van-cell-group-background: transparent;
+  --van-cell-group-inset-background: #{$glass-bg-heavy};
+  --van-cell-group-inset-radius: #{$radius-xl};
+  --van-cell-text-color: #{$text-primary};
+  --van-cell-border-color: rgba($lavender, 0.2);
+  
+  // Nav Bar
+  --van-nav-bar-background: transparent;
+  --van-nav-bar-title-text-color: #{$text-primary};
+  --van-nav-bar-icon-color: #{$text-primary};
+  --van-nav-bar-arrow-size: 22px;
+  
+  // Divider
+  --van-divider-border-color: rgba($lavender, 0.3);
+  --van-divider-text-color: #{$text-muted};
+  --van-divider-font-size: #{$font-size-sm};
+  
+  // Toast
+  --van-toast-background: #{$glass-bg-heavy};
+  --van-toast-text-color: #{$text-primary};
+  --van-toast-border-radius: #{$radius-lg};
+  
+  // Loading
+  --van-loading-spinner-color: #{$pink-primary};
+  
+  // Dialog
+  --van-dialog-background: #{$glass-bg-heavy};
+  --van-dialog-border-radius: #{$radius-xl};
+  --van-dialog-header-font-weight: #{$font-weight-semibold};
+  --van-dialog-confirm-button-text-color: #{$pink-primary};
+  
+  // Popup
+  --van-popup-background: #{$glass-bg-heavy};
+  --van-popup-border-radius: #{$radius-xl};
+  
+  // Tab
+  --van-tab-active-text-color: #{$pink-primary};
+  --van-tabs-nav-background: transparent;
+  --van-tabs-bottom-bar-color: #{$pink-primary};
+  
+  // Switch
+  --van-switch-on-background: #{$button-gradient};
+  
+  // Checkbox & Radio
+  --van-checkbox-checked-icon-color: #{$pink-primary};
+  --van-radio-checked-icon-color: #{$pink-primary};
+}
+
+// Vant 组件额外样式覆盖
+.van-button {
+  transition: all $transition-normal;
+  
+  &--primary {
+    box-shadow: $shadow-button;
+    
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+.van-cell-group--inset {
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
+  margin: 0;
+}
+
+.van-field {
+  background: transparent;
+}
+
+.van-nav-bar {
+  &::after {
+    display: none;
+  }
+}
+
+.van-toast {
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
+  box-shadow: $shadow-lg;
+}
+
+.van-dialog {
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+}
+
+.van-popup {
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
+}
