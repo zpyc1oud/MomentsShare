@@ -1,0 +1,360 @@
+// ========================================
+// MomentsShare 全局样式
+// ========================================
+
+// === Reset ===
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-family;
+  font-size: $font-size-base;
+  line-height: 1.5;
+  color: $text-primary;
+  background-color: $bg-dark;
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+input,
+textarea {
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  
+  &::placeholder {
+    color: $text-placeholder;
+  }
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+// === 滚动条样式 ===
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+// === 工具类 ===
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+// === 动画类 ===
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity $transition-normal;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.scale-enter-active,
+.scale-leave-active {
+  transition: all $transition-normal;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+// === 按钮基础样式 ===
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: $radius-full;
+  font-weight: $font-weight-medium;
+  transition: all $transition-fast;
+  
+  &:active {
+    transform: scale(0.98);
+  }
+  
+  &--primary {
+    background: $primary-gradient;
+    color: $text-primary;
+    box-shadow: $shadow-glow;
+    
+    &:hover {
+      filter: brightness(1.1);
+    }
+  }
+  
+  &--secondary {
+    background: $bg-input;
+    color: $text-primary;
+    border: 1px solid $border-color;
+    
+    &:hover {
+      background: $bg-card-hover;
+    }
+  }
+  
+  &--text {
+    color: $primary-color;
+    
+    &:hover {
+      color: $primary-light;
+    }
+  }
+  
+  &--block {
+    width: 100%;
+  }
+  
+  &--small {
+    padding: 8px 16px;
+    font-size: $font-size-sm;
+  }
+  
+  &--large {
+    padding: 16px 32px;
+    font-size: $font-size-lg;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// === 输入框基础样式 ===
+.input-wrapper {
+  position: relative;
+  width: 100%;
+  
+  .input {
+    width: 100%;
+    padding: 14px 16px;
+    background: $bg-input;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+    color: $text-primary;
+    transition: all $transition-fast;
+    
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
+    
+    &--error {
+      border-color: $error-color;
+    }
+  }
+  
+  .input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+  }
+  
+  .input-icon + .input {
+    padding-left: 44px;
+  }
+}
+
+// === 卡片样式 ===
+.card {
+  background: $bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  border: 1px solid $border-light;
+  
+  &--hover {
+    transition: all $transition-normal;
+    
+    &:hover {
+      background: $bg-card-hover;
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+    }
+  }
+}
+
+// === 头像样式 ===
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: $bg-input;
+  
+  &--sm {
+    width: 32px;
+    height: 32px;
+  }
+  
+  &--lg {
+    width: 56px;
+    height: 56px;
+  }
+  
+  &--xl {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+// === 徽标样式 ===
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  background: $error-color;
+  color: $text-primary;
+  border-radius: $radius-full;
+}
+
+// === 标签样式 ===
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: $font-size-sm;
+  border-radius: $radius-full;
+  background: rgba($primary-color, 0.15);
+  color: $primary-light;
+  
+  &--outline {
+    background: transparent;
+    border: 1px solid $primary-color;
+  }
+}
+
+// === 分割线 ===
+.divider {
+  height: 1px;
+  background: $border-color;
+  margin: $spacing-md 0;
+}
+
+// === 空状态 ===
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl;
+  color: $text-muted;
+  
+  &__icon {
+    font-size: 48px;
+    margin-bottom: $spacing-md;
+    opacity: 0.5;
+  }
+  
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-medium;
+    margin-bottom: $spacing-sm;
+  }
+  
+  &__desc {
+    font-size: $font-size-sm;
+    text-align: center;
+  }
+}
+
