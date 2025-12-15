@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Comment
+from .models import Comment, Rating
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class CommentSerializer(serializers.ModelSerializer):
             try:
                 parent = Comment.objects.get(id=parent_id)
                 if moment and parent.moment_id != moment.id:
-                    raise serializers.ValidationError({"parent_id": "父评论不属于该动态"})
+                    raise serializers.ValidationError({"parent_id": "该父评论不属于该动态"})
                 attrs["parent"] = parent
             except Comment.DoesNotExist:
                 raise serializers.ValidationError({"parent_id": "父评论不存在"})
@@ -32,3 +32,24 @@ class CommentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return super().create(validated_data)
 
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = ["id", "moment", "user", "score", "created_at"]
+        read_only_fields = ["user", "created_at"]
+
+    def validate_score(self, value):
+        if not (1 <= value <= 5):
+            raise serializers.ValidationError("Score must be between 1 and 5.")
+        return value
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        moment = validated_data['moment']
+        score = validated_data['score']
+        rating, created = Rating.objects.update_or_create(
+            moment=moment, user=user,
+            defaults={'score': score}
+        )
+        return rating
