@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # 1. 数据库服务
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=moments_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  # 2. Redis 服务 (用于缓存和 Celery)
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+
+  # 3. Django 后端服务
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      # 确保这里覆盖 .env 中的数据库设置，指向容器内的 db
+      - DB_HOST=db
+      - DB_NAME=moments_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/0
+
+  # 4. Celery Worker (处理视频转码任务)
+  worker:
+    build: .
+    command: celery -A moments_share worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - web
+    environment:
+      - DB_HOST=db
+      - DB_NAME=moments_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/0
+
+volumes:
+  postgres_data:
