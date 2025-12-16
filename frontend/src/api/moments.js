@@ -47,6 +47,11 @@ export const momentsApi = {
     return request.get('/moments/feed/', { params: { page } })
   },
 
+  // 获取我的动态列表
+  getMyMoments(page = 1) {
+    return request.get('/moments/my/', { params: { page } })
+  },
+
   // 搜索动态
   search(params) {
     return request.get('/moments/search/', { params })

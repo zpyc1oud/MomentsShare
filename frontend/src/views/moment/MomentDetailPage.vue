@@ -183,7 +183,7 @@ onMounted(() => {
 .detail-page {
   height: 100%;
   padding: $spacing-md;
-  padding-bottom: 70px;
+  padding-bottom: 80px;
   overflow-y: auto;
 }
 
@@ -264,6 +264,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
+  padding-bottom: $spacing-lg;
 }
 
 .comment-item {

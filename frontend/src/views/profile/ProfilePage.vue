@@ -91,6 +91,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import PageLayout from '@/components/layout/PageLayout.vue'
 import { useAuthStore } from '@/stores/auth'
+import { momentsApi } from '@/api/moments'
 
 const authStore = useAuthStore()
 
@@ -102,6 +103,16 @@ const stats = reactive({
 })
 const moments = ref([])
 
+const fetchMyMoments = async () => {
+  try {
+    const response = await momentsApi.getMyMoments()
+    moments.value = response.results || []
+    stats.moments = response.count || moments.value.length
+  } catch (error) {
+    console.error('获取我的动态失败:', error)
+  }
+}
+
 onMounted(async () => {
   // 获取用户信息
   const userInfo = await authStore.fetchUserInfo()
@@ -109,7 +120,8 @@ onMounted(async () => {
     user.value = userInfo
   }
   
-  // TODO: 获取统计数据和动态列表
+  // 获取我的动态列表
+  await fetchMyMoments()
 })
 </script>
 
