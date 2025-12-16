@@ -99,8 +99,9 @@ onMounted(() => {
   display: flex;
   gap: $spacing-md;
   padding: $spacing-md;
-  background: $bg-card;
-  border-bottom: 1px solid $border-light;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  border-bottom: $glass-border-light;
 }
 
 .entry-item {
@@ -110,13 +111,16 @@ onMounted(() => {
   align-items: center;
   gap: $spacing-xs;
   padding: $spacing-md;
-  background: $bg-input;
+  background: $glass-bg-heavy;
+  border: $glass-border-light;
   border-radius: $radius-lg;
   cursor: pointer;
   transition: all $transition-fast;
+  box-shadow: $shadow-sm;
   
   &:hover {
-    background: $bg-card-hover;
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
   }
 }
 

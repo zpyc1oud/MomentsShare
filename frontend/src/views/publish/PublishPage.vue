@@ -287,11 +287,12 @@ const handlePublish = async () => {
 
 .publish-btn {
   padding: 8px 16px;
-  background: $primary-gradient;
+  background: $button-gradient;
   border-radius: $radius-full;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: $text-primary;
+  color: $text-white;
+  box-shadow: $shadow-sm;
   
   &:disabled {
     opacity: 0.5;
@@ -307,8 +308,9 @@ const handlePublish = async () => {
   width: 100%;
   min-height: 150px;
   padding: $spacing-md;
-  background: $bg-input;
-  border: 1px solid $border-color;
+  background: $glass-bg-heavy;
+  backdrop-filter: blur(10px);
+  border: $glass-border;
   border-radius: $radius-lg;
   color: $text-primary;
   font-size: $font-size-base;
@@ -316,7 +318,7 @@ const handlePublish = async () => {
   resize: none;
   
   &:focus {
-    border-color: $primary-color;
+    border-color: rgba($pink-primary, 0.5);
   }
   
   &::placeholder {
@@ -341,15 +343,15 @@ const handlePublish = async () => {
 .ai-btn {
   flex: 1;
   padding: 10px;
-  background: rgba($primary-color, 0.1);
-  border: 1px solid rgba($primary-color, 0.3);
+  background: rgba($lavender, 0.15);
+  border: 1px solid rgba($lavender, 0.3);
   border-radius: $radius-md;
   font-size: $font-size-sm;
-  color: $primary-light;
+  color: $lavender;
   transition: all $transition-fast;
   
   &:hover:not(:disabled) {
-    background: rgba($primary-color, 0.2);
+    background: rgba($lavender, 0.25);
   }
   
   &:disabled {
@@ -370,17 +372,18 @@ const handlePublish = async () => {
 .media-tab {
   flex: 1;
   padding: 12px;
-  background: $bg-input;
-  border: 1px solid $border-color;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  border: $glass-border;
   border-radius: $radius-md;
   font-size: $font-size-sm;
   color: $text-secondary;
   transition: all $transition-fast;
   
   &.active {
-    background: rgba($primary-color, 0.1);
-    border-color: $primary-color;
-    color: $primary-light;
+    background: rgba($pink-primary, 0.15);
+    border-color: $pink-primary;
+    color: $pink-primary;
   }
 }
 
@@ -422,14 +425,15 @@ const handlePublish = async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: $bg-input;
-  border: 2px dashed $border-color;
+  background: $glass-bg;
+  border: 2px dashed rgba($lavender, 0.4);
   border-radius: $radius-md;
   cursor: pointer;
   transition: all $transition-fast;
   
   &:hover {
-    border-color: $primary-color;
+    border-color: $pink-primary;
+    background: rgba($pink-primary, 0.05);
   }
   
   .upload-icon {
@@ -491,8 +495,9 @@ const handlePublish = async () => {
 }
 
 .tags-input {
-  background: $bg-input;
-  border: 1px solid $border-color;
+  background: $glass-bg-heavy;
+  backdrop-filter: blur(10px);
+  border: $glass-border;
   border-radius: $radius-md;
   padding: $spacing-sm;
 }
@@ -509,10 +514,10 @@ const handlePublish = async () => {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  background: rgba($primary-color, 0.15);
+  background: rgba($lavender, 0.2);
   border-radius: $radius-full;
   font-size: $font-size-sm;
-  color: $primary-light;
+  color: $lavender;
   
   button {
     font-size: 14px;

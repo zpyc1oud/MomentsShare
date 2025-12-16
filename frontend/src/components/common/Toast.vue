@@ -69,59 +69,77 @@ watch(() => props.modelValue, (val) => {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  padding: 12px 20px;
-  background: $bg-card;
-  border: 1px solid $border-color;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-lg;
+  padding: 14px 24px;
+  background: $glass-bg-heavy;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: $glass-border;
+  border-radius: $radius-full;
+  box-shadow: $shadow-md;
   z-index: $z-toast;
   
   &--success {
-    border-color: rgba($success-color, 0.3);
-    .toast__icon { color: $success-color; }
+    border-color: rgba($success-color, 0.4);
+    .toast__icon { 
+      color: $success-color; 
+      background: rgba($success-color, 0.15);
+    }
   }
   
   &--error {
-    border-color: rgba($error-color, 0.3);
-    .toast__icon { color: $error-color; }
+    border-color: rgba($error-color, 0.4);
+    .toast__icon { 
+      color: $error-color; 
+      background: rgba($error-color, 0.15);
+    }
   }
   
   &--warning {
-    border-color: rgba($warning-color, 0.3);
-    .toast__icon { color: $warning-color; }
+    border-color: rgba($warning-color, 0.4);
+    .toast__icon { 
+      color: $warning-color;
+      background: rgba($warning-color, 0.15);
+    }
   }
   
   &--info {
-    border-color: rgba($info-color, 0.3);
-    .toast__icon { color: $info-color; }
+    border-color: rgba($baby-blue, 0.4);
+    .toast__icon { 
+      color: darken($baby-blue, 15%);
+      background: rgba($baby-blue, 0.2);
+    }
   }
   
   &__icon {
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
     
     svg {
-      width: 100%;
-      height: 100%;
+      width: 18px;
+      height: 18px;
     }
   }
   
   &__message {
     font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
     color: $text-primary;
   }
 }
 
 .toast-enter-active,
 .toast-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(-20px);
+  transform: translateX(-50%) translateY(-30px) scale(0.9);
 }
 </style>
-

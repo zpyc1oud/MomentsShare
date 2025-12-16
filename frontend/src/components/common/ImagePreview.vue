@@ -213,7 +213,7 @@ const next = () => {
     &--active {
       width: 20px;
       border-radius: 3px;
-      background: $primary-color;
+      background: $pink-primary;
     }
   }
 }

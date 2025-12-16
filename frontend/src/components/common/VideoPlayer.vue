@@ -226,7 +226,7 @@ defineExpose({
   
   &__fill {
     height: 100%;
-    background: $primary-color;
+    background: $pink-primary;
     border-radius: 2px;
     transition: width 0.1s linear;
   }

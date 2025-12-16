@@ -1,9 +1,11 @@
 from rest_framework import serializers
 
+from users.serializers import UserInfoSerializer
 from .models import Comment, Rating
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = UserInfoSerializer(read_only=True)
     replies = serializers.SerializerMethodField()
     parent_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
 

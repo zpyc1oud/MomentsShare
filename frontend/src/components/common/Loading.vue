@@ -34,14 +34,15 @@ defineProps({
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba($bg-dark, 0.9);
-    backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: $z-loading;
   }
   
   &__spinner {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
   
   &__text {
@@ -54,16 +55,20 @@ defineProps({
 .spinner {
   width: 100%;
   height: 100%;
-  border: 3px solid $border-color;
-  border-top-color: $primary-color;
+  border: 3px solid rgba($lavender, 0.2);
+  border-top-color: $pink-primary;
+  border-right-color: $lavender;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+  box-shadow: 0 0 20px rgba($pink-primary, 0.2);
 }
 
 @keyframes spin {
-  to {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }
 </style>
-

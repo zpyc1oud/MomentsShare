@@ -89,13 +89,17 @@ onMounted(() => {
   align-items: center;
   gap: $spacing-md;
   padding: $spacing-md;
-  background: $bg-card;
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  border: $glass-border-light;
   border-radius: $radius-lg;
   cursor: pointer;
   transition: all $transition-fast;
+  box-shadow: $shadow-sm;
   
   &:hover {
-    background: $bg-card-hover;
+    background: $glass-bg-heavy;
+    transform: translateX(4px);
   }
 }
 

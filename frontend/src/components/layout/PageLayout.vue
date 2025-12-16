@@ -99,7 +99,7 @@ defineExpose({
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: $bg-dark;
+  background: transparent;
   
   &.has-navbar .page-content {
     padding-top: $navbar-height;
@@ -118,7 +118,16 @@ defineExpose({
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    
+    // 柔和的滚动条
+    &::-webkit-scrollbar {
+      width: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba($lavender, 0.3);
+      border-radius: 3px;
+    }
   }
 }
 </style>
-
