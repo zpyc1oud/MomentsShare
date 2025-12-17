@@ -21,3 +21,16 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.author} on {self.moment_id}"
 
+
+class Rating(models.Model):
+    moment = models.ForeignKey(Moment, on_delete=models.CASCADE, related_name="ratings")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings")
+    score = models.PositiveSmallIntegerField(default=5)  # 1-5
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ("moment", "user")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} rated {self.moment} - {self.score}"

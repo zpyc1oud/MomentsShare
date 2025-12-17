@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
@@ -85,7 +85,7 @@ class AdminContentDeleteView(generics.GenericAPIView):
 @extend_schema(
     tags=["管理后台"],
     summary="数据统计",
-    description="获取今日数据统计，包括日活跃用户数、新增用户数、发帖数。",
+    description="获取过去7天每日数据统计，包括日期、日活跃用户数、新增用户数、发帖数。",
 )
 class AdminStatsView(generics.GenericAPIView):
     """管理员数据统计接口"""
@@ -93,19 +93,31 @@ class AdminStatsView(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         today = date.today()
-        daily_new_users = User.objects.filter(created_at__date=today).count()
-        daily_posts = Moment.objects.filter(created_at__date=today, is_deleted=False).count()
-        dau_users = set(
-            Moment.objects.filter(created_at__date=today).values_list("author_id", flat=True)
-        ) | set(
-            Comment.objects.filter(created_at__date=today).values_list("author_id", flat=True)
-        )
-        dau = len([uid for uid in dau_users if uid])
-        return Response(
-            {
+        stats_list = []
+        for i in range(7):
+            current_date = today - timedelta(days=i)
+            
+            # Count new users for the day
+            daily_new_users = User.objects.filter(created_at__date=current_date).count()
+            
+            # Count posts for the day
+            daily_posts = Moment.objects.filter(created_at__date=current_date, is_deleted=False).count()
+            
+            # Calculate DAU
+            dau_users = set(
+                Moment.objects.filter(created_at__date=current_date).values_list("author_id", flat=True)
+            ) | set(
+                Comment.objects.filter(created_at__date=current_date).values_list("author_id", flat=True)
+            )
+            dau = len([uid for uid in dau_users if uid])
+            
+            stats_list.append({
+                "date": current_date.isoformat(),
                 "dau": dau,
                 "daily_new_users": daily_new_users,
                 "daily_posts": daily_posts,
-            }
-        )
-
+            })
+        
+        # Sort by date ascending (optional, but often better for charts)
+        stats_list.reverse()
+        return Response(stats_list)

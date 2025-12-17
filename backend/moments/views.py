@@ -69,9 +69,63 @@ class FeedView(generics.ListAPIView):
         ids = set()
         for pair in friend_ids:
             ids.update(pair)
-        ids.discard(user.id)
+        ids.add(user.id)
         return (
             Moment.objects.filter(author_id__in=ids, is_deleted=False)
+            .filter(Q(type=Moment.MomentType.IMAGE) | Q(video_status=Moment.VideoStatus.READY))
+            .order_by("-created_at")
+        )
+
+
+@extend_schema(
+    tags=["动态"],
+    summary="搜索动态",
+    description="根据关键词、标签、日期范围搜索动态。",
+    parameters=[
+        OpenApiParameter(
+            name="keyword",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="搜索关键词（模糊匹配内容）",
+            required=False,
+        ),
+        OpenApiParameter(
+            name="label",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="标签名称",
+            required=False,
+        ),
+        OpenApiParameter(
+            name="start_date",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="开始日期 (格式: 2024-01-01)",
+            required=False,
+        ),
+        OpenApiParameter(
+            name="end_date",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="结束日期 (格式: 2024-01-31)",
+            required=False,
+        ),
+    ],
+)
+@extend_schema(
+    tags=["动态"],
+    summary="我的动态列表",
+    description="获取当前用户发布的所有动态，按时间倒序排列，支持分页。",
+)
+class MyMomentsView(generics.ListAPIView):
+    """我的动态列表接口"""
+    serializer_class = MomentListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return (
+            Moment.objects.filter(author=user, is_deleted=False)
             .filter(Q(type=Moment.MomentType.IMAGE) | Q(video_status=Moment.VideoStatus.READY))
             .order_by("-created_at")
         )

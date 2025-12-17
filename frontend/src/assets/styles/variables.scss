@@ -1,0 +1,134 @@
+// ========================================
+// MomentsShare 设计系统变量
+// 马卡龙色系 / 独角兽色系 主题
+// ========================================
+
+// === 调色板 (Macaron Pastels / Unicorn Colors) ===
+
+// 主色调 - 甜蜜粉系列
+$pink-primary: #FCAEC1;        // 主强调色
+$pink-light: #FCD1DB;          // 辅助浅粉
+$pink-soft: rgba(252, 174, 193, 0.6);
+
+// 辅助色 - 香芋紫
+$lavender: #B7A8D6;            // 过渡色，增加梦幻感
+$lavender-soft: rgba(183, 168, 214, 0.6);
+
+// 点缀色 - 冰川蓝
+$baby-blue: #ADD9F3;           // 冷暖对比点缀
+$baby-blue-soft: rgba(173, 217, 243, 0.6);
+
+// 渐变色系
+$primary-gradient: linear-gradient(135deg, $pink-primary 0%, $lavender 50%, $baby-blue 100%);
+$primary-gradient-soft: linear-gradient(135deg, $pink-light 0%, rgba($lavender, 0.8) 50%, rgba($baby-blue, 0.8) 100%);
+$button-gradient: linear-gradient(135deg, $lavender 0%, $pink-primary 100%);
+
+// 网格渐变背景 (Mesh Gradient)
+$mesh-gradient-bg: 
+  radial-gradient(ellipse at 20% 20%, rgba($pink-primary, 0.5) 0%, transparent 50%),
+  radial-gradient(ellipse at 80% 30%, rgba($baby-blue, 0.4) 0%, transparent 45%),
+  radial-gradient(ellipse at 40% 80%, rgba($lavender, 0.5) 0%, transparent 50%),
+  radial-gradient(ellipse at 90% 90%, rgba($pink-light, 0.3) 0%, transparent 40%),
+  linear-gradient(180deg, #FDF7F9 0%, #F5F0F7 50%, #F0F7FB 100%);
+
+// 背景色 - 柔和渐变系
+$bg-base: #FAF7F9;             // 最浅的基础背景
+$bg-secondary: rgba(255, 255, 255, 0.6);
+$bg-card: rgba(255, 255, 255, 0.5);
+$bg-card-hover: rgba(255, 255, 255, 0.7);
+$bg-input: rgba(255, 255, 255, 0.6);
+
+// 毛玻璃拟态 (Glassmorphism)
+$glass-bg: rgba(255, 255, 255, 0.45);
+$glass-bg-heavy: rgba(255, 255, 255, 0.65);
+$glass-blur: blur(20px);
+$glass-border: 1px solid rgba(255, 255, 255, 0.5);
+$glass-border-light: 1px solid rgba(255, 255, 255, 0.3);
+
+// 文字色 - 深灰紫色系（保持柔和度）
+$text-primary: #4A4458;        // 主要文字 - 深灰紫
+$text-secondary: #6E6783;      // 次要文字
+$text-muted: #9B93A8;          // 弱化文字
+$text-placeholder: #B8B1C4;    // 占位符文字
+$text-white: #FFFFFF;          // 白色文字
+
+// 边框色
+$border-color: rgba(183, 168, 214, 0.3);
+$border-light: rgba(255, 255, 255, 0.4);
+$border-focus: rgba($pink-primary, 0.5);
+
+// 状态色
+$success-color: #7DD3A8;       // 柔和绿
+$warning-color: #FFD789;       // 柔和黄
+$error-color: #F5A5A5;         // 柔和红
+$info-color: #89C4E8;          // 柔和蓝
+
+// === 尺寸 ===
+// 手机模拟器尺寸 (iPhone 14 Pro)
+$phone-width: 393px;
+$phone-height: 852px;
+$phone-radius: 50px;
+$phone-notch-width: 126px;
+$phone-notch-height: 34px;
+
+// 导航栏
+$navbar-height: 56px;
+$tabbar-height: 65px;
+$status-bar-height: 44px;
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+
+// 圆角 - 大圆角设计
+$radius-sm: 12px;
+$radius-md: 16px;
+$radius-lg: 20px;
+$radius-xl: 28px;
+$radius-2xl: 36px;
+$radius-full: 9999px;
+
+// === 字体 ===
+$font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-size-xs: 11px;
+$font-size-sm: 13px;
+$font-size-base: 15px;
+$font-size-lg: 17px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 32px;
+
+// 字重
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// === 阴影 - 柔和投影 ===
+$shadow-sm: 0 2px 12px rgba(183, 168, 214, 0.15);
+$shadow-md: 0 4px 20px rgba(183, 168, 214, 0.2);
+$shadow-lg: 0 8px 32px rgba(183, 168, 214, 0.25);
+$shadow-glow: 0 4px 24px rgba(252, 174, 193, 0.35);
+$shadow-button: 0 6px 20px rgba(183, 168, 214, 0.4);
+$shadow-inset: inset 0 2px 4px rgba(255, 255, 255, 0.8);
+
+// === 动画 ===
+$transition-fast: 0.15s ease;
+$transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+// === Z-Index层级 ===
+$z-background: -1;
+$z-default: 1;
+$z-navbar: 100;
+$z-tabbar: 100;
+$z-modal-backdrop: 200;
+$z-modal: 300;
+$z-toast: 400;
+$z-loading: 500;
