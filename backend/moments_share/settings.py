@@ -26,9 +26,11 @@ INSTALLED_APPS = [
     "interactions",
     "ai_service",
     "admin_panel",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -168,3 +170,4 @@ SENSITIVE_WORDS = os.getenv("SENSITIVE_WORDS", "违禁,敏感,非法").split(","
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_AI_MODEL = os.getenv("GOOGLE_AI_MODEL", "gemini-1.5-flash")
 
+CORS_ALLOW_ALL_ORIGINS = True
