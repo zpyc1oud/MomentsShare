@@ -17,20 +17,36 @@ export const useAuthStore = defineStore('auth', {
     async login(credentials) {
       this.isLoading = true
       try {
+        // 使用真实后端API登录
         const response = await authAPI.login(credentials)
 
-        this.token = response.access
-        this.userInfo = response.user_info
+        if (response.access) {
+          this.token = response.access
+          this.userInfo = response.user_info
 
-        // 保存到localStorage
-        localStorage.setItem('admin_token', response.access)
-        localStorage.setItem('admin_user_info', JSON.stringify(response.user_info))
+          // 保存到localStorage
+          localStorage.setItem('admin_token', response.access)
+          localStorage.setItem('admin_user_info', JSON.stringify(response.user_info))
 
-        return { success: true }
+          return { success: true }
+        } else {
+          return { success: false, message: '登录失败' }
+        }
       } catch (error) {
+        // 如果真实登录失败，提供友好的错误信息
+        let errorMessage = '登录失败'
+
+        if (error.response?.data?.detail) {
+          errorMessage = error.response.data.detail
+        } else if (error.response?.status === 401) {
+          errorMessage = '手机号或密码错误，或用户不是管理员'
+        } else if (error.response?.status === 403) {
+          errorMessage = '您没有管理员权限'
+        }
+
         return {
           success: false,
-          message: error.response?.data?.detail || '登录失败'
+          message: errorMessage
         }
       } finally {
         this.isLoading = false

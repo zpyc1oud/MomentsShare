@@ -17,7 +17,6 @@ const routes = [
   },
   {
     path: '/dashboard',
-    name: 'Dashboard',
     component: () => import('@/views/Layout.vue'),
     meta: {
       title: '数据看板',
@@ -26,6 +25,7 @@ const routes = [
     children: [
       {
         path: '',
+        name: 'Dashboard',
         component: () => import('@/views/Dashboard.vue'),
         meta: { title: '数据看板' }
       }
