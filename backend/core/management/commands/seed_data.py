@@ -1,101 +1,97 @@
 import random
+import os
 from django.core.management.base import BaseCommand
+from django.core.files import File
 from django.contrib.auth import get_user_model
+# 👇 注意这里多导入了一个 Image 模型
+from moments.models import Moment, Image 
 from faker import Faker
-# 引入你的业务模型 (根据Wiki中的表名推测，如果报错需核对代码中的类名)
-from moments.models import Moment  # 假设动态模型叫 Moment
-from interactions.models import Comment # 假设评论模型叫 Comment
 
 User = get_user_model()
 
+REAL_TEXTS = [
+    "今天天气真不错，出来散散心！🌞",
+    "终于下班了，累死我了，需要大餐犒劳一下！🍔",
+    "路边的猫咪好可爱，忍不住拍了一张。🐱",
+    "周末去爬山，风景独好，推荐大家也去！⛰️",
+    "打卡一家网红店，味道一般，但是拍照很好看。📸",
+    "生活不仅有眼前的苟且，还有诗和远方。✨",
+    "熬夜写代码，这就是程序员的浪漫吗？💻",
+    "心情不好，求安慰...😔",
+]
+
 class Command(BaseCommand):
-    help = '生成测试数据 (Users, Moments, Comments)'
+    help = '生成符合 models.py 定义的真实数据'
 
     def handle(self, *args, **kwargs):
-        self.stdout.write('正在初始化造数引擎...')
-        fake = Faker('zh_CN')  # 使用中文生成器
-
-        # ==========================================
-        # 1. 生成用户 (Users)
-        # ==========================================
-        self.stdout.write('Step 1: 正在生成 50 个虚拟用户...')
-        existing_phones = set(User.objects.values_list('phone', flat=True))
+        self.stdout.write('正在清理旧数据...')
+        # 级联删除：删除 Moment 会自动删除关联的 Image
+        Moment.objects.all().delete()
         
-        users = []
-        for _ in range(50):
-            # 生成唯一的手机号
-            while True:
-                phone = fake.phone_number()
-                if phone not in existing_phones:
-                    existing_phones.add(phone)
-                    break
-            
-            user = User(
-                phone=phone,
-                username=fake.user_name() + str(random.randint(1000, 9999)),
-                nickname=fake.name(),
-                password='pbkdf2_sha256$...' # 这里的密码无法直接登录，仅占位。如需登录请用 createsuperuser 的账号
-            )
-            # 设置统一密码 123456
-            user.set_password('123456')
-            users.append(user)
-        
-        # 批量插入数据库 (比一个个save快100倍)
-        User.objects.bulk_create(users, ignore_conflicts=True)
-        self.stdout.write(self.style.SUCCESS(f'成功生成 {len(users)} 个用户!'))
+        users = User.objects.all()
+        if not users.exists():
+            self.stdout.write(self.style.ERROR('❌ 错误：没有用户数据'))
+            return
 
-        # ==========================================
-        # 2. 生成动态 (Moments)
-        # ==========================================
-        self.stdout.write('Step 2: 正在生成 200 条动态...')
-        all_users = list(User.objects.all())
-        moments = []
-        
-        # 模拟一些真实的文案
-        sample_texts = [
-            "今天天气真不错！", "打卡网红店，味道一般。", "刚下班，好累啊。", 
-            "分享一首好听的歌。", "周末去哪里玩比较好？", "新买的相机到了！",
-            "为了梦想，继续前行！", "好久不见的老朋友。", "这就是生活。", "早安，打工人！"
-        ]
+        samples_dir = '/app/samples'
+        images = []
+        videos = []
 
-        for _ in range(200):
-            author = random.choice(all_users)
-            content = fake.text(max_nb_chars=100) + " " + random.choice(sample_texts)
-            
-            # 随机决定是图文还是视频 (80%图文, 20%视频)
-            moment_type = 'IMAGE' if random.random() < 0.8 else 'VIDEO'
-            
+        if os.path.exists(samples_dir):
+            files = os.listdir(samples_dir)
+            images = [f for f in files if f.endswith(('.jpg', '.png', '.jpeg'))]
+            videos = [f for f in files if f.endswith(('.mp4', '.mov'))]
+            self.stdout.write(f'✅ 素材库加载成功：{len(images)} 图 / {len(videos)} 视')
+        else:
+            self.stdout.write(self.style.WARNING(f'❌ 未找到 {samples_dir}，只能生成纯文字'))
+
+        self.stdout.write('正在生成数据...')
+        
+        for i in range(20):
+            author = random.choice(users)
+            text = random.choice(REAL_TEXTS)
+            m_type = random.choice(['TEXT', 'IMAGE', 'VIDEO'])
+
+            # 降级策略
+            if m_type == 'IMAGE' and not images: m_type = 'TEXT'
+            if m_type == 'VIDEO' and not videos: m_type = 'TEXT'
+
+            # 1. 先创建动态主体 (Moment)
             moment = Moment(
-                author=author,
-                content=content,
-                type=moment_type,
-                # 这里暂时不放真实图片文件，只留空，或者你可以指向一个静态默认图
+                author=author, 
+                content=text, 
+                type=m_type
             )
-            moments.append(moment)
-            
-        Moment.objects.bulk_create(moments)
-        self.stdout.write(self.style.SUCCESS(f'成功生成 {len(moments)} 条动态!'))
 
-        # ==========================================
-        # 3. 生成评论 (Comments)
-        # ==========================================
-        self.stdout.write('Step 3: 正在生成 500 条评论...')
-        all_moments = list(Moment.objects.all())
-        comments = []
+            try:
+                # === 2. 视频处理逻辑 (字段名是 video_file) ===
+                if m_type == 'VIDEO':
+                    vid_name = random.choice(videos)
+                    file_path = os.path.join(samples_dir, vid_name)
+                    with open(file_path, 'rb') as f:
+                        # save=True 会自动保存 moment 对象
+                        moment.video_file.save(f'videos/{vid_name}', File(f), save=True)
 
-        for _ in range(500):
-            author = random.choice(all_users)
-            moment = random.choice(all_moments)
-            
-            comment = Comment(
-                author=author,
-                moment=moment,
-                content=fake.sentence()
-            )
-            comments.append(comment)
-            
-        Comment.objects.bulk_create(comments)
-        self.stdout.write(self.style.SUCCESS(f'成功生成 {len(comments)} 条评论!'))
-        
-        self.stdout.write(self.style.SUCCESS('----------------------------------'))
-        self.stdout.write(self.style.SUCCESS('所有数据生成完毕！Mission Complete!'))
+                # === 3. 图片处理逻辑 (存入 Image 关联表) ===
+                elif m_type == 'IMAGE':
+                    # 图片动态必须先保存 moment，获得 ID 后才能创建关联的 Image
+                    moment.save() 
+                    
+                    img_name = random.choice(images)
+                    file_path = os.path.join(samples_dir, img_name)
+                    
+                    with open(file_path, 'rb') as f:
+                        # 创建 Image 对象关联到 moment
+                        new_img = Image(moment=moment, order=1)
+                        # 保存文件到 image_file 字段
+                        new_img.image_file.save(f'images/{img_name}', File(f), save=True)
+                
+                # === 4. 纯文字逻辑 ===
+                else:
+                    moment.save()
+
+            except Exception as e:
+                self.stdout.write(self.style.WARNING(f'⚠️ 第 {i+1} 条数据生成出错: {str(e)}'))
+                continue
+
+        self.stdout.write(self.style.SUCCESS(f'🎉 完美生成 20 条数据！前端现在可以看到图片和视频了！'))

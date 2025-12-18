@@ -25,6 +25,8 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
+      # ▼▼▼ 修改点 1：添加这行，把 media 文件夹存入 Docker 隐形保险箱 ▼▼▼
+      - media_volume:/app/media
     ports:
       - "8000:8000"
     depends_on:
@@ -44,6 +46,8 @@ services:
     command: celery -A moments_share worker -l info
     volumes:
       - .:/app
+      # 为了确保 worker 也能处理 web 上传的视频，建议这里也加上（虽然之前步骤没细说，但加上更保险）
+      - media_volume:/app/media
     depends_on:
       - db
       - redis
@@ -57,3 +61,5 @@ services:
 
 volumes:
   postgres_data:
+  # ▼▼▼ 修改点 2：在最底部声明这个保险箱 ▼▼▼
+  media_volume:
