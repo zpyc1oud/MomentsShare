@@ -298,8 +298,7 @@ const changePhone = async () => {
 }
 
 .edit-arrow {
-  width: 18px;
-  height: 18px;
+  font-size: 18px;
   color: $text-muted;
 }
 

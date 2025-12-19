@@ -276,7 +276,7 @@ const handleRegister = async () => {
     backdrop-filter: $glass-blur;
     -webkit-backdrop-filter: $glass-blur;
     border: $glass-border;
-    border-radius: $radius-xl !important;
+    border-radius: $radius-md !important;
     overflow: hidden;
     margin: 0 !important;
   }

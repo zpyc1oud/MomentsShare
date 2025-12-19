@@ -10,9 +10,7 @@
           <div v-if="showHeader" class="modal__header">
             <h3 class="modal__title">{{ title }}</h3>
             <button v-if="showClose" class="modal__close" @click="close">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 6L6 18M6 6l12 12"/>
-              </svg>
+              <van-icon name="cross" />
             </button>
           </div>
           
@@ -86,8 +84,8 @@ const handleBackdropClick = () => {
   right: 0;
   bottom: 0;
   background: rgba(183, 168, 214, 0.3);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,11 +140,7 @@ const handleBackdropClick = () => {
     border: $glass-border-light;
     color: $text-muted;
     transition: all $transition-normal;
-    
-    svg {
-      width: 18px;
-      height: 18px;
-    }
+    font-size: 18px;
     
     &:hover {
       background: rgba(255, 255, 255, 0.8);

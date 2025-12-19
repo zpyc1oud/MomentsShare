@@ -3,11 +3,7 @@
     <template #nav-right>
       <button class="nav-btn" @click="$router.push('/add-friend')">
         <span v-if="pendingCount" class="badge">{{ pendingCount }}</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-          <circle cx="8.5" cy="7" r="4"/>
-          <path d="M20 8v6M23 11h-6"/>
-        </svg>
+        <van-icon name="friends-o" />
       </button>
     </template>
     
@@ -15,12 +11,12 @@
       <!-- 快捷入口 -->
       <div class="quick-entries">
         <div class="entry-item" @click="$router.push('/friends')">
-          <div class="entry-icon">👥</div>
+          <div class="entry-icon"><van-icon name="friends" /></div>
           <span class="entry-label">通讯录</span>
         </div>
         <div class="entry-item" @click="$router.push('/friend-requests')">
           <div class="entry-icon">
-            ✉️
+            <van-icon name="envelop-o" />
             <span v-if="pendingCount" class="entry-badge">{{ pendingCount }}</span>
           </div>
           <span class="entry-label">好友申请</span>
@@ -30,7 +26,7 @@
       <!-- 消息列表（占位） -->
       <div class="message-list">
         <div class="empty-state">
-          <span class="empty-state__icon">💬</span>
+          <van-icon name="chat-o" class="empty-state__icon" />
           <h3 class="empty-state__title">暂无消息</h3>
           <p class="empty-state__desc">和好友互动后，消息会显示在这里</p>
         </div>
@@ -74,11 +70,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  svg {
-    width: 22px;
-    height: 22px;
-  }
+  font-size: 22px;
   
   .badge {
     position: absolute;
@@ -100,7 +92,7 @@ onMounted(() => {
   gap: $spacing-md;
   padding: $spacing-md;
   background: $glass-bg;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border-bottom: $glass-border-light;
 }
 
@@ -127,6 +119,7 @@ onMounted(() => {
 .entry-icon {
   position: relative;
   font-size: 28px;
+  color: $pink-primary;
   
   .entry-badge {
     position: absolute;
@@ -140,6 +133,7 @@ onMounted(() => {
     font-size: 10px;
     line-height: 16px;
     text-align: center;
+    color: white;
   }
 }
 

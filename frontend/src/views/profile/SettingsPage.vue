@@ -48,7 +48,7 @@ const handleLogout = async () => {
   align-items: center;
   padding: $spacing-md;
   background: $glass-bg;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border: $glass-border-light;
   border-radius: $radius-lg;
   box-shadow: $shadow-sm;

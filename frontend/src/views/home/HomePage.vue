@@ -121,12 +121,12 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   background: $glass-bg;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
   border: $glass-border-light;
   border-radius: 50%;
   transition: all $transition-normal;
-  box-shadow: $shadow-sm;
+  box-shadow: 0 4px 12px rgba(183, 168, 214, 0.2);
   
   svg {
     width: 18px;
@@ -137,6 +137,7 @@ onMounted(() => {
   &:hover {
     background: rgba(255, 255, 255, 0.7);
     transform: rotate(180deg);
+    box-shadow: 0 6px 16px rgba(183, 168, 214, 0.3);
   }
   
   &:active {

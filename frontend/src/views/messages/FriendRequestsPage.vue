@@ -37,10 +37,10 @@
         </div>
         
         <div v-else class="empty-state">
-          <span class="empty-state__icon">📭</span>
-          <h3 class="empty-state__title">暂无申请</h3>
-          <p class="empty-state__desc">有新的好友申请时会显示在这里</p>
-        </div>
+      <van-icon name="envelop-o" class="empty-state__icon" />
+      <h3 class="empty-state__title">暂无申请</h3>
+      <p class="empty-state__desc">有新的好友申请时会显示在这里</p>
+    </div>
       </template>
     </div>
   </PageLayout>
@@ -120,7 +120,7 @@ onMounted(() => {
   gap: $spacing-md;
   padding: $spacing-md;
   background: $glass-bg;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border: $glass-border-light;
   border-radius: $radius-lg;
   box-shadow: $shadow-sm;

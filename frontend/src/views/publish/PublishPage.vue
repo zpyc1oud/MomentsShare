@@ -25,10 +25,10 @@
       <!-- AI 润色按钮 -->
       <div class="ai-actions">
         <button class="ai-btn" @click="polishContent" :disabled="!form.content || polishing">
-          ✨ {{ polishing ? 'AI润色中...' : 'AI润色' }}
+          <van-icon name="gem-o" /> {{ polishing ? 'AI润色中...' : 'AI润色' }}
         </button>
         <button class="ai-btn" @click="recommendTags" :disabled="!hasMedia || recommending">
-          🏷️ {{ recommending ? '推荐中...' : '智能标签' }}
+          <van-icon name="label-o" /> {{ recommending ? '推荐中...' : '智能标签' }}
         </button>
       </div>
       
@@ -40,14 +40,14 @@
             :class="{ active: form.type === 'IMAGE' }"
             @click="switchType('IMAGE')"
           >
-            📷 图片
+            <van-icon name="photo-o" /> 图片
           </button>
           <button 
             class="media-tab" 
             :class="{ active: form.type === 'VIDEO' }"
             @click="switchType('VIDEO')"
           >
-            🎬 视频
+            <van-icon name="video-o" /> 视频
           </button>
         </div>
         
@@ -60,7 +60,9 @@
               class="image-item"
             >
               <img :src="image" alt="预览图" />
-              <button class="remove-btn" @click="removeImage(index)">×</button>
+              <button class="remove-btn" @click="removeImage(index)">
+                <van-icon name="cross" />
+              </button>
             </div>
             <label v-if="imagePreview.length < 9" class="upload-trigger">
               <input 
@@ -70,7 +72,7 @@
                 hidden
                 @change="handleImageSelect"
               />
-              <span class="upload-icon">+</span>
+              <van-icon name="plus" class="upload-icon" />
               <span class="upload-text">添加图片</span>
             </label>
           </div>
@@ -81,7 +83,9 @@
         <div v-else class="video-upload">
           <div v-if="videoPreview" class="video-preview">
             <video :src="videoPreview" controls></video>
-            <button class="remove-btn" @click="removeVideo">×</button>
+            <button class="remove-btn" @click="removeVideo">
+              <van-icon name="cross" />
+            </button>
           </div>
           <label v-else class="upload-trigger upload-trigger--video">
             <input 
@@ -90,7 +94,7 @@
               hidden
               @change="handleVideoSelect"
             />
-            <span class="upload-icon">🎬</span>
+            <van-icon name="video-o" class="upload-icon" />
             <span class="upload-text">选择视频</span>
           </label>
         </div>
@@ -310,9 +314,9 @@ const handlePublish = async () => {
   min-height: 150px;
   padding: $spacing-md;
   background: $glass-bg-heavy;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border: $glass-border;
-  border-radius: $radius-lg;
+  border-radius: $radius-md;
   color: $text-primary;
   font-size: $font-size-base;
   line-height: 1.6;
@@ -344,6 +348,10 @@ const handlePublish = async () => {
 .ai-btn {
   flex: 1;
   padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   background: rgba($lavender, 0.15);
   border: 1px solid rgba($lavender, 0.3);
   border-radius: $radius-md;
@@ -373,8 +381,12 @@ const handlePublish = async () => {
 .media-tab {
   flex: 1;
   padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: $glass-bg;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border: $glass-border;
   border-radius: $radius-md;
   font-size: $font-size-sm;
@@ -497,7 +509,7 @@ const handlePublish = async () => {
 
 .tags-input {
   background: $glass-bg-heavy;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border: $glass-border;
   border-radius: $radius-md;
   padding: $spacing-sm;

@@ -10,11 +10,15 @@
       :style="{ transform: `translateY(${indicatorOffset}px)` }"
     >
       <div class="pull-refresh__content" :class="{ 'is-refreshing': isRefreshing }">
-        <svg v-if="!isRefreshing" class="pull-refresh__arrow" viewBox="0 0 24 24">
-          <path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
-        <div v-else class="pull-refresh__spinner"></div>
-        <span>{{ statusText }}</span>
+        <div 
+          v-if="!isRefreshing" 
+          class="pull-refresh__icon-wrapper"
+          :style="{ transform: `rotate(${pullOffset >= threshold ? 180 : 0}deg)` }"
+        >
+          <van-icon name="arrow-down" class="pull-refresh__icon" />
+        </div>
+        <van-loading v-else type="spinner" size="20px" color="#FCAEC1" />
+        <span class="pull-refresh__text">{{ statusText }}</span>
       </div>
     </div>
     
@@ -100,47 +104,38 @@ const onTouchEnd = async () => {
     right: 0;
     height: 50px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease;
+    align-items: center;
   }
   
   &__content {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
-    font-size: $font-size-sm;
+    gap: $spacing-xs;
     color: $text-secondary;
-    
-    &.is-refreshing .pull-refresh__arrow {
-      display: none;
-    }
+    font-size: $font-size-sm;
   }
   
-  &__arrow {
-    width: 18px;
-    height: 18px;
-    transition: transform 0.2s;
+  &__icon-wrapper {
+    transition: transform $transition-fast;
+    display: flex;
+    align-items: center;
   }
-  
-  &__spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba($lavender, 0.3);
-    border-top-color: $pink-primary;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+
+  &__icon {
+    font-size: 20px;
+    color: $text-secondary;
+  }
+
+  &__text {
+    color: $text-secondary;
   }
   
   &__body {
     height: 100%;
-    transition: transform 0.2s ease;
-    overflow-y: auto;
+    transition: transform $transition-normal;
+    will-change: transform;
   }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 </style>
 

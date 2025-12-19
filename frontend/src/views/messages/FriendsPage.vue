@@ -59,6 +59,7 @@
               <span class="friend-name">{{ friend.nickname }}</span>
               <span class="friend-username">@{{ friend.username }}</span>
             </div>
+<<<<<<< HEAD
             <div class="friend-actions">
               <button
                 class="btn btn--ghost btn--small"
@@ -67,13 +68,22 @@
                 删除
               </button>
             </div>
+=======
+            <van-icon name="arrow" class="arrow-icon" />
+>>>>>>> d8744d57c20d13d05bc3f5f23b8afb107f11d2e8
           </div>
         </div>
 
         <div v-else class="empty-state">
+<<<<<<< HEAD
           <span class="empty-state__icon">{{ showSearch ? '🔍' : '👋' }}</span>
           <h3 class="empty-state__title">{{ showSearch ? '未找到匹配的好友' : '暂无好友' }}</h3>
           <p class="empty-state__desc">{{ showSearch ? '尝试使用其他关键词搜索' : '点击上方的"添加好友"开始社交吧' }}</p>
+=======
+          <van-icon name="friends-o" class="empty-state__icon" />
+          <h3 class="empty-state__title">暂无好友</h3>
+          <p class="empty-state__desc">快去添加好友开始社交吧</p>
+>>>>>>> d8744d57c20d13d05bc3f5f23b8afb107f11d2e8
         </div>
       </template>
     </div>
@@ -232,7 +242,7 @@ onMounted(() => {
   gap: $spacing-md;
   padding: $spacing-md;
   background: $glass-bg;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border: $glass-border-light;
   border-radius: $radius-lg;
   cursor: pointer;
@@ -268,8 +278,7 @@ onMounted(() => {
 }
 
 .arrow-icon {
-  width: 20px;
-  height: 20px;
+  font-size: 20px;
   color: $text-muted;
 }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="not-found-page">
     <div class="error-content">
-      <span class="error-icon">🔍</span>
+      <van-icon name="warn-o" class="error-icon" />
       <h1 class="error-code">404</h1>
       <p class="error-message">页面未找到</p>
       <router-link to="/home" class="btn btn--primary">

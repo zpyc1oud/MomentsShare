@@ -17,9 +17,7 @@
     <div class="video-player__overlay" @click="togglePlay">
       <transition name="fade">
         <div v-if="!isPlaying" class="video-player__play-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
+          <van-icon name="play" class="video-player__play-icon" />
         </div>
       </transition>
     </div>
@@ -27,12 +25,7 @@
     <!-- 控制栏 -->
     <div class="video-player__controls" v-if="showControls">
       <button class="control-btn" @click="togglePlay">
-        <svg v-if="isPlaying" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-        </svg>
-        <svg v-else viewBox="0 0 24 24" fill="currentColor">
-          <path d="M8 5v14l11-7z"/>
-        </svg>
+        <van-icon :name="isPlaying ? 'pause' : 'play'" />
       </button>
       
       <div class="progress-bar" @click="seek">
@@ -46,9 +39,7 @@
       </span>
       
       <button class="control-btn" @click="toggleFullscreen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
-        </svg>
+        <van-icon name="expand-o" />
       </button>
     </div>
   </div>
@@ -135,6 +126,7 @@ defineExpose({
   background: #000;
   border-radius: $radius-md;
   overflow: hidden;
+  box-shadow: $shadow-md;
   
   &__video {
     width: 100%;
@@ -153,21 +145,30 @@ defineExpose({
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    background: rgba(0, 0, 0, 0.2);
   }
   
   &__play-btn {
     width: 60px;
     height: 60px;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: transform $transition-fast;
     
-    svg {
-      width: 28px;
-      height: 28px;
-      margin-left: 4px;
+    &:active {
+      transform: scale(0.95);
+    }
+    
+    .video-player__play-icon {
+      font-size: 28px;
+      color: #fff;
+      margin-left: 4px; 
     }
   }
   
@@ -181,6 +182,7 @@ defineExpose({
     gap: $spacing-sm;
     padding: $spacing-sm $spacing-md;
     background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    color: #fff;
   }
   
   &--playing {
@@ -202,10 +204,11 @@ defineExpose({
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: #fff;
+  font-size: 20px;
   
-  svg {
-    width: 18px;
-    height: 18px;
+  &:active {
+    opacity: 0.8;
   }
 }
 
@@ -229,13 +232,15 @@ defineExpose({
     background: $pink-primary;
     border-radius: 2px;
     transition: width 0.1s linear;
+    box-shadow: 0 0 8px rgba($pink-primary, 0.5);
   }
 }
 
 .time-display {
   font-size: $font-size-xs;
-  color: $text-secondary;
+  color: rgba(255, 255, 255, 0.9);
   flex-shrink: 0;
+  font-feature-settings: "tnum";
 }
 </style>
 

@@ -152,6 +152,8 @@ const handleLogin = async () => {
     position: absolute;
     border-radius: 50%;
     filter: blur(60px);
+    opacity: 0.7;
+    animation: float 20s ease-in-out infinite;
     
     &--1 {
       width: 220px;
@@ -159,7 +161,7 @@ const handleLogin = async () => {
       background: rgba($pink-primary, 0.4);
       top: -60px;
       right: -40px;
-      animation: pulse 8s ease-in-out infinite;
+      animation-delay: 0s;
     }
     
     &--2 {
@@ -168,8 +170,7 @@ const handleLogin = async () => {
       background: rgba($lavender, 0.35);
       top: 35%;
       left: -60px;
-      animation: pulse 10s ease-in-out infinite;
-      animation-delay: -3s;
+      animation-delay: -5s;
     }
     
     &--3 {
@@ -178,20 +179,23 @@ const handleLogin = async () => {
       background: rgba($baby-blue, 0.35);
       bottom: 10%;
       right: -30px;
-      animation: pulse 9s ease-in-out infinite;
-      animation-delay: -5s;
+      animation-delay: -10s;
     }
   }
 }
 
-@keyframes pulse {
+@keyframes float {
   0%, 100% {
-    transform: scale(1);
-    opacity: 0.7;
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -30px) scale(1.05);
   }
   50% {
-    transform: scale(1.1);
-    opacity: 0.5;
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+  75% {
+    transform: translate(-30px, -20px) scale(1.02);
   }
 }
 
@@ -251,7 +255,7 @@ const handleLogin = async () => {
     backdrop-filter: $glass-blur;
     -webkit-backdrop-filter: $glass-blur;
     border: $glass-border;
-    border-radius: $radius-xl !important;
+    border-radius: $radius-md !important;
     overflow: hidden;
     margin: 0 !important;
   }

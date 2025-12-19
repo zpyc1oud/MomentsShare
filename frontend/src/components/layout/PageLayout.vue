@@ -1,5 +1,12 @@
 <template>
-  <div class="page-layout" :class="{ 'has-navbar': showNavbar, 'has-tabbar': showTabbar }">
+  <div 
+    class="page-layout" 
+    :class="{ 
+      'has-navbar': showNavbar, 
+      'has-tabbar': showTabbar,
+      'nav-transparent': navTransparent 
+    }"
+  >
     <!-- 导航栏 -->
     <NavBar 
       v-if="showNavbar"
@@ -101,7 +108,7 @@ defineExpose({
   flex-direction: column;
   background: transparent;
   
-  &.has-navbar .page-content {
+  &.has-navbar:not(.nav-transparent) .page-content {
     padding-top: $navbar-height;
   }
   
