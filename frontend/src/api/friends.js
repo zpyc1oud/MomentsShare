@@ -17,8 +17,13 @@ export const friendsApi = {
   },
 
   // 获取好友列表
-  getFriendList() {
-    return request.get('/friends/')
+  getFriendList(page = 1) {
+    return request.get('/friends/', { params: { page } })
+  },
+
+  // 搜索用户
+  searchUsers(keyword, page = 1) {
+    return request.get('/friends/search/', { params: { keyword, page } })
   },
 
   // 获取待处理的好友申请

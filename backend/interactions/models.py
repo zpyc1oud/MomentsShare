@@ -22,6 +22,19 @@ class Comment(models.Model):
         return f"{self.author} on {self.moment_id}"
 
 
+class Like(models.Model):
+    moment = models.ForeignKey(Moment, on_delete=models.CASCADE, related_name="likes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ("moment", "user")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} likes {self.moment}"
+
+
 class Rating(models.Model):
     moment = models.ForeignKey(Moment, on_delete=models.CASCADE, related_name="ratings")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings")

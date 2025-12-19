@@ -47,13 +47,17 @@
     
     <!-- 互动栏 -->
     <div class="moment-actions">
-      <button class="action-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button
+        class="action-btn"
+        :class="{ 'action-btn--liked': moment.is_liked }"
+        @click.stop="handleLike"
+      >
+        <svg viewBox="0 0 24 24" :fill="moment.is_liked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
           <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
         </svg>
-        <span>喜欢</span>
+        <span>{{ moment.likes_count || 0 }}</span>
       </button>
-      <button class="action-btn">
+      <button class="action-btn" @click.stop="$emit('click')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>
         </svg>
@@ -64,11 +68,13 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
 import VideoPlayer from '@/components/common/VideoPlayer.vue'
+import { momentsApi } from '@/api/moments'
+import { showToast } from 'vant'
 
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
@@ -80,7 +86,49 @@ const props = defineProps({
   }
 })
 
-defineEmits(['click'])
+const emit = defineEmits(['click', 'like-updated'])
+
+const loading = ref(false)
+
+// 更新本地点赞状态
+const updateMomentLikeState = (responseData) => {
+  props.moment.is_liked = responseData.liked
+  props.moment.likes_count = responseData.likes_count
+
+  // 通知父组件更新状态
+  emit('like-updated', {
+    momentId: props.moment.id,
+    isLiked: responseData.liked,
+    likesCount: responseData.likes_count
+  })
+}
+
+// 处理点赞
+const handleLike = async () => {
+  if (loading.value) return
+
+  loading.value = true
+
+  try {
+    const response = await momentsApi.toggleLike(props.moment.id)
+    updateMomentLikeState(response)
+
+    showToast({
+      message: response.detail,
+      type: 'success',
+      position: 'bottom'
+    })
+  } catch (error) {
+    console.error('Like error:', error)
+    showToast({
+      message: error.response?.data?.detail || '操作失败',
+      type: 'fail',
+      position: 'bottom'
+    })
+  } finally {
+    loading.value = false
+  }
+}
 
 const authorAvatar = computed(() => {
   return props.moment.author?.avatar || '/default-avatar.png'
@@ -286,19 +334,28 @@ const previewImage = (index) => {
   padding: 6px 12px;
   border-radius: $radius-full;
   transition: all $transition-normal;
-  
+
   svg {
     width: 18px;
     height: 18px;
   }
-  
+
   &:hover {
     color: $pink-primary;
     background: rgba($pink-primary, 0.1);
   }
-  
+
   &:active {
     transform: scale(0.95);
+  }
+
+  &--liked {
+    color: $pink-primary;
+    background: rgba($pink-primary, 0.15);
+
+    &:hover {
+      background: rgba($pink-primary, 0.2);
+    }
   }
 }
 </style>

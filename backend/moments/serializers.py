@@ -87,6 +87,8 @@ class MomentListSerializer(serializers.ModelSerializer):
     author = UserInfoSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     images = ImageSerializer(many=True, read_only=True)
+    likes_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Moment
@@ -101,7 +103,18 @@ class MomentListSerializer(serializers.ModelSerializer):
             "created_at",
             "images",
             "tags",
+            "likes_count",
+            "is_liked",
         ]
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
 
 
 class MomentDetailSerializer(MomentListSerializer):

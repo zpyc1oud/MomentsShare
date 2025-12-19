@@ -38,7 +38,21 @@
         <div v-if="moment.tags?.length" class="moment-tags">
           <span v-for="tag in moment.tags" :key="tag.id" class="tag"># {{ tag.name }}</span>
         </div>
-        
+
+        <!-- 点赞和统计信息 -->
+        <div class="moment-stats">
+          <button
+            class="like-btn"
+            :class="{ 'like-btn--liked': moment.is_liked }"
+            @click="handleLike"
+          >
+            <svg viewBox="0 0 24 24" :fill="moment.is_liked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+            <span>{{ moment.likes_count || 0 }} 赞</span>
+          </button>
+        </div>
+
         <div class="divider"></div>
         
         <!-- 评论区 -->
@@ -111,6 +125,7 @@ import Loading from '@/components/common/Loading.vue'
 import VideoPlayer from '@/components/common/VideoPlayer.vue'
 import ImagePreview from '@/components/common/ImagePreview.vue'
 import { momentsApi } from '@/api/moments'
+import { showToast } from 'vant'
 
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
@@ -124,6 +139,7 @@ const commentText = ref('')
 const submitting = ref(false)
 const showPreview = ref(false)
 const previewIndex = ref(0)
+const likeLoading = ref(false)
 
 const previewImages = computed(() => {
   return moment.value?.images?.map(img => img.image_file) || []
@@ -171,6 +187,36 @@ const submitComment = async () => {
     console.error('Submit comment error:', error)
   } finally {
     submitting.value = false
+  }
+}
+
+// 处理点赞
+const handleLike = async () => {
+  if (likeLoading.value || !moment.value) return
+
+  likeLoading.value = true
+
+  try {
+    const response = await momentsApi.toggleLike(moment.value.id)
+
+    // 更新点赞状态和数量
+    moment.value.is_liked = response.liked
+    moment.value.likes_count = response.likes_count
+
+    showToast({
+      message: response.detail,
+      type: 'success',
+      position: 'bottom'
+    })
+  } catch (error) {
+    console.error('Like error:', error)
+    showToast({
+      message: error.response?.data?.detail || '操作失败',
+      type: 'fail',
+      position: 'bottom'
+    })
+  } finally {
+    likeLoading.value = false
   }
 }
 
@@ -247,6 +293,50 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: $spacing-xs;
   margin-bottom: $spacing-md;
+}
+
+.moment-stats {
+  padding: $spacing-md 0;
+  display: flex;
+  align-items: center;
+}
+
+.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba($lavender, 0.1);
+  border: 1px solid rgba($lavender, 0.2);
+  border-radius: $radius-full;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  transition: all $transition-normal;
+  cursor: pointer;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: rgba($lavender, 0.15);
+    border-color: rgba($lavender, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &--liked {
+    background: rgba($pink-primary, 0.15);
+    border-color: $pink-primary;
+    color: $pink-primary;
+
+    &:hover {
+      background: rgba($pink-primary, 0.2);
+    }
+  }
 }
 
 .comments-section {

@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.db.models import Q
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -33,6 +34,35 @@ class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "nickname", "avatar"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    friendship_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "nickname", "phone", "avatar", "friendship_status"]
+        read_only_fields = ["id"]
+
+    def get_friendship_status(self, obj):
+        """获取当前用户与该用户的好友关系状态"""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return None
+
+        user = request.user
+        if obj.id == user.id:
+            return None
+
+        from friends.models import Friendship
+        friendship = Friendship.objects.filter(
+            (Q(from_user=user) & Q(to_user=obj)) |
+            (Q(from_user=obj) & Q(to_user=user))
+        ).first()
+
+        if friendship:
+            return friendship.status
+        return None
 
 
 class CurrentUserSerializer(serializers.ModelSerializer):

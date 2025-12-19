@@ -150,7 +150,8 @@ const hasMedia = computed(() => {
 
 const canPublish = computed(() => {
   if (form.type === 'IMAGE') {
-    return form.images.length > 0
+    // 允许纯文字或带图片
+    return form.content.trim().length > 0 || form.images.length > 0
   }
   return !!form.video
 })

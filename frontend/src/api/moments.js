@@ -65,6 +65,11 @@ export const momentsApi = {
   // 发布评论
   createComment(momentId, data) {
     return request.post(`/moments/${momentId}/comments/`, data)
+  },
+
+  // 点赞/取消点赞
+  toggleLike(momentId) {
+    return request.post(`/moments/${momentId}/like/`)
   }
 }
 

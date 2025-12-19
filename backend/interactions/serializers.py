@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from users.serializers import UserInfoSerializer
-from .models import Comment, Rating
+from .models import Comment, Rating, Like
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -55,3 +55,28 @@ class RatingSerializer(serializers.ModelSerializer):
             defaults={'score': score}
         )
         return rating
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    user = UserInfoSerializer(read_only=True)
+
+    class Meta:
+        model = Like
+        fields = ["id", "moment", "user", "created_at"]
+        read_only_fields = ["user", "created_at"]
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        moment = validated_data['moment']
+
+        # 检查是否已经点赞，如果已点赞则取消点赞（删除）
+        like_instance = Like.objects.filter(moment=moment, user=user).first()
+
+        if like_instance:
+            # 取消点赞
+            like_instance.delete()
+            return None  # 返回None表示取消点赞
+        else:
+            # 点赞
+            like = Like.objects.create(moment=moment, user=user)
+            return like  # 返回Like对象表示点赞成功

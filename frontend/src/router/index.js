@@ -60,6 +60,12 @@ const routes = [
     component: () => import('@/views/messages/FriendRequestsPage.vue'),
     meta: { requiresAuth: true, hideTabbar: true }
   },
+  {
+    path: '/add-friend',
+    name: 'AddFriend',
+    component: () => import('@/views/messages/AddFriendPage.vue'),
+    meta: { requiresAuth: true, hideTabbar: true }
+  },
   // P6: 动态详情
   {
     path: '/moment/:id',

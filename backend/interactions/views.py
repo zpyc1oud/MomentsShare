@@ -4,8 +4,8 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
 from moments.models import Moment
-from .models import Comment, Rating
-from .serializers import CommentSerializer, RatingSerializer
+from .models import Comment, Rating, Like
+from .serializers import CommentSerializer, RatingSerializer, LikeSerializer
 
 
 @extend_schema_view(
@@ -105,3 +105,46 @@ class AvgScoreView(generics.GenericAPIView):
         
         avg_score = Rating.objects.filter(moment_id=moment_id).aggregate(Avg("score"))["score__avg"]
         return Response({"moment_id": int(moment_id), "avg_score": avg_score or 0.0})
+
+
+@extend_schema(
+    tags=["互动"],
+    summary="点赞/取消点赞",
+    description="对指定动态进行点赞或取消点赞操作。如果用户未点赞则点赞，已点赞则取消点赞。",
+    request=LikeSerializer,
+    responses={201: LikeSerializer, 200: {"detail": "取消点赞成功"}},
+)
+class LikeView(generics.CreateAPIView):
+    """点赞接口"""
+    serializer_class = LikeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        moment_id = kwargs.get("moment_id")
+        try:
+            moment = Moment.objects.get(id=moment_id, is_deleted=False)
+        except Moment.DoesNotExist:
+            from rest_framework.exceptions import NotFound
+            raise NotFound("动态不存在或已被删除")
+
+        # 检查是否已经点赞
+        like_instance = Like.objects.filter(moment=moment, user=request.user).first()
+
+        if like_instance:
+            # 取消点赞
+            like_instance.delete()
+            return Response({
+                "detail": "取消点赞成功",
+                "liked": False,
+                "likes_count": Like.objects.filter(moment=moment).count()
+            }, status=status.HTTP_200_OK)
+        else:
+            # 点赞
+            like = Like.objects.create(moment=moment, user=request.user)
+            serializer = self.get_serializer(like)
+            return Response({
+                "detail": "点赞成功",
+                "liked": True,
+                "likes_count": Like.objects.filter(moment=moment).count(),
+                "like": serializer.data
+            }, status=status.HTTP_201_CREATED)

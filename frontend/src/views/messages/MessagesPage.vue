@@ -1,7 +1,7 @@
 <template>
   <PageLayout title="消息" :show-back="false">
     <template #nav-right>
-      <button class="nav-btn" @click="$router.push('/friend-requests')">
+      <button class="nav-btn" @click="$router.push('/add-friend')">
         <span v-if="pendingCount" class="badge">{{ pendingCount }}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
@@ -49,7 +49,7 @@ const pendingCount = ref(0)
 const fetchPendingCount = async () => {
   try {
     const response = await friendsApi.getPendingRequests()
-    pendingCount.value = response.count || 0
+    pendingCount.value = response.results ? response.results.length : response.length
   } catch (error) {
     console.error('Fetch pending count error:', error)
   }
