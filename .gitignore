@@ -1,0 +1,8 @@
+.pytest_cache
+__pycache__
+.cursor
+.idea
+.vscode
+media
+db.sqlite3
+node_modules
