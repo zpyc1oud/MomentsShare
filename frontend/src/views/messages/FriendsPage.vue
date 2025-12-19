@@ -18,14 +18,12 @@
               <span class="friend-name">{{ friend.nickname }}</span>
               <span class="friend-username">@{{ friend.username }}</span>
             </div>
-            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
+            <van-icon name="arrow" class="arrow-icon" />
           </div>
         </div>
         
         <div v-else class="empty-state">
-          <span class="empty-state__icon">👋</span>
+          <van-icon name="friends-o" class="empty-state__icon" />
           <h3 class="empty-state__title">暂无好友</h3>
           <p class="empty-state__desc">快去添加好友开始社交吧</p>
         </div>
@@ -90,7 +88,7 @@ onMounted(() => {
   gap: $spacing-md;
   padding: $spacing-md;
   background: $glass-bg;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border: $glass-border-light;
   border-radius: $radius-lg;
   cursor: pointer;
@@ -121,8 +119,7 @@ onMounted(() => {
 }
 
 .arrow-icon {
-  width: 20px;
-  height: 20px;
+  font-size: 20px;
   color: $text-muted;
 }
 </style>

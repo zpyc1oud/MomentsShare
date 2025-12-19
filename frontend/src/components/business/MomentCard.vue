@@ -114,16 +114,16 @@ const previewImage = (index) => {
   backdrop-filter: $glass-blur;
   -webkit-backdrop-filter: $glass-blur;
   border: $glass-border;
-  border-radius: $radius-lg;
+  border-radius: $radius-md;
   padding: $spacing-md;
   cursor: pointer;
   transition: all $transition-normal;
-  box-shadow: $shadow-sm;
+  box-shadow: 0 4px 20px rgba(183, 168, 214, 0.2);
   
   &:hover {
     background: $glass-bg-heavy;
     transform: translateY(-4px);
-    box-shadow: $shadow-md;
+    box-shadow: 0 8px 32px rgba(183, 168, 214, 0.25);
   }
   
   &:active {

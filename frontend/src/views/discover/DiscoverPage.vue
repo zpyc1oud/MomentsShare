@@ -4,10 +4,7 @@
       <!-- 搜索栏 -->
       <div class="search-bar">
         <div class="search-input-wrapper">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="M21 21l-4.35-4.35"/>
-          </svg>
+          <van-icon name="search" class="search-icon" />
           <input 
             v-model="searchForm.keyword"
             type="text"
@@ -17,9 +14,7 @@
           />
         </div>
         <button class="filter-btn" @click="showFilter = !showFilter">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>
-          </svg>
+          <van-icon name="filter-o" />
         </button>
       </div>
       
@@ -75,14 +70,14 @@
           </div>
           
           <div v-else class="empty-state">
-            <span class="empty-state__icon">🔍</span>
+            <van-icon name="search" class="empty-state__icon" />
             <h3 class="empty-state__title">未找到结果</h3>
             <p class="empty-state__desc">尝试更换关键词或筛选条件</p>
           </div>
         </template>
         
         <div v-else class="discover-hint">
-          <span class="hint-icon">💡</span>
+          <van-icon name="bulb-o" class="hint-icon" />
           <p>输入关键词搜索动态，或使用筛选器精确查找</p>
         </div>
       </div>
@@ -201,7 +196,7 @@ const goToDetail = (id) => {
   align-items: center;
   justify-content: center;
   background: $glass-bg-heavy;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border: $glass-border;
   border-radius: $radius-md;
   color: $text-secondary;
@@ -215,7 +210,7 @@ const goToDetail = (id) => {
 .filter-panel {
   padding: $spacing-md;
   background: $glass-bg;
-  backdrop-filter: blur(10px);
+  backdrop-filter: $glass-blur;
   border-bottom: $glass-border-light;
 }
 

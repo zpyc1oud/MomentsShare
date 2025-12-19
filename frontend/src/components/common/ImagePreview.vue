@@ -5,9 +5,7 @@
         <div class="image-preview__header">
           <span class="image-preview__counter">{{ currentIndex + 1 }} / {{ images.length }}</span>
           <button class="image-preview__close" @click="close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
+            <van-icon name="cross" />
           </button>
         </div>
         
@@ -17,9 +15,7 @@
             class="image-preview__nav image-preview__nav--prev"
             @click="prev"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 18l-6-6 6-6"/>
-            </svg>
+            <van-icon name="arrow-left" />
           </button>
           
           <div class="image-preview__container">
@@ -35,9 +31,7 @@
             class="image-preview__nav image-preview__nav--next"
             @click="next"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
+            <van-icon name="arrow" />
           </button>
         </div>
         
@@ -181,11 +175,8 @@ const next = () => {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     transition: background $transition-fast;
-    
-    svg {
-      width: 24px;
-      height: 24px;
-    }
+    color: white;
+    font-size: 24px;
     
     &:hover {
       background: rgba(255, 255, 255, 0.2);

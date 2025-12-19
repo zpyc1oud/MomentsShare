@@ -43,18 +43,14 @@
       <!-- 菜单列表 -->
       <div class="profile-menu">
         <div class="menu-item" @click="$router.push('/friends')">
-          <span class="menu-icon">👥</span>
+          <van-icon name="friends-o" class="menu-icon" />
           <span class="menu-label">我的好友</span>
-          <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 18l6-6-6-6"/>
-          </svg>
+          <van-icon name="arrow" class="menu-arrow" />
         </div>
         <div class="menu-item" @click="$router.push('/settings')">
-          <span class="menu-icon">⚙️</span>
+          <van-icon name="setting-o" class="menu-icon" />
           <span class="menu-label">设置</span>
-          <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 18l6-6-6-6"/>
-          </svg>
+          <van-icon name="arrow" class="menu-arrow" />
         </div>
       </div>
       
@@ -151,6 +147,7 @@ onMounted(async () => {
     position: absolute;
     border-radius: 50%;
     filter: blur(40px);
+    animation: float 20s ease-in-out infinite;
     
     &--1 {
       width: 150px;
@@ -166,6 +163,7 @@ onMounted(async () => {
       background: rgba($baby-blue, 0.4);
       bottom: -20px;
       left: 20%;
+      animation-delay: -10s;
     }
   }
   
@@ -250,8 +248,8 @@ onMounted(async () => {
   backdrop-filter: $glass-blur;
   -webkit-backdrop-filter: $glass-blur;
   border: $glass-border;
-  border-radius: $radius-xl;
-  box-shadow: $shadow-sm;
+  border-radius: $radius-md;
+  box-shadow: 0 4px 20px rgba(183, 168, 214, 0.2);
 }
 
 .stat-item {
@@ -358,7 +356,7 @@ onMounted(async () => {
   overflow: hidden;
   cursor: pointer;
   background: $glass-bg;
-  backdrop-filter: blur(8px);
+  backdrop-filter: $glass-blur;
   border: $glass-border-light;
   transition: all $transition-normal;
   

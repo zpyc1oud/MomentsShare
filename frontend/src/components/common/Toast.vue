@@ -3,18 +3,10 @@
     <transition name="toast">
       <div v-if="visible" class="toast" :class="`toast--${type}`">
         <span class="toast__icon">
-          <svg v-if="type === 'success'" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <svg v-else-if="type === 'error'" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <svg v-else-if="type === 'warning'" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-          <svg v-else viewBox="0 0 24 24" fill="currentColor">
-            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
+          <van-icon v-if="type === 'success'" name="success" />
+          <van-icon v-else-if="type === 'error'" name="cross" />
+          <van-icon v-else-if="type === 'warning'" name="warning-o" />
+          <van-icon v-else name="info-o" />
         </span>
         <span class="toast__message">{{ message }}</span>
       </div>
@@ -118,11 +110,7 @@ watch(() => props.modelValue, (val) => {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    
-    svg {
-      width: 18px;
-      height: 18px;
-    }
+    font-size: 18px;
   }
   
   &__message {

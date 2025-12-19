@@ -8,7 +8,10 @@
       :class="{ 'tabbar__item--active': isActive(item.path) }"
     >
       <div class="tabbar__icon">
-        <component :is="item.icon" :filled="isActive(item.path)" />
+        <van-icon 
+          :name="isActive(item.path) ? item.activeIcon : item.icon" 
+          :size="item.size || '24px'"
+        />
         <span v-if="item.badge" class="tabbar__badge">{{ item.badge }}</span>
       </div>
       <span class="tabbar__label">{{ item.label }}</span>
@@ -17,22 +20,16 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import IconHome from '@/components/icons/IconHome.vue'
-import IconSearch from '@/components/icons/IconSearch.vue'
-import IconAdd from '@/components/icons/IconAdd.vue'
-import IconMessage from '@/components/icons/IconMessage.vue'
-import IconProfile from '@/components/icons/IconProfile.vue'
 
 const route = useRoute()
 
 const tabs = [
-  { path: '/home', label: '首页', icon: IconHome },
-  { path: '/discover', label: '发现', icon: IconSearch },
-  { path: '/publish', label: '发布', icon: IconAdd },
-  { path: '/messages', label: '消息', icon: IconMessage },
-  { path: '/profile', label: '我的', icon: IconProfile }
+  { path: '/home', label: '首页', icon: 'wap-home-o', activeIcon: 'wap-home' },
+  { path: '/discover', label: '发现', icon: 'search', activeIcon: 'search' },
+  { path: '/publish', label: '发布', icon: 'plus', activeIcon: 'plus', size: '26px' },
+  { path: '/messages', label: '消息', icon: 'chat-o', activeIcon: 'chat' },
+  { path: '/profile', label: '我的', icon: 'user-o', activeIcon: 'user' }
 ]
 
 const isActive = (path) => {
@@ -142,12 +139,13 @@ const isActive = (path) => {
       border-radius: 50% 50% 0 0;
     }
     
-    :deep(svg) {
+    :deep(.van-icon) {
       width: 26px;
       height: 26px;
       color: white;
       position: relative;
       z-index: 1;
+      font-size: 26px;
     }
   }
   
@@ -163,7 +161,7 @@ const isActive = (path) => {
   &.tabbar__item--active .tabbar__icon {
     transform: scale(1.08) rotate(45deg);
     
-    :deep(svg) {
+    :deep(.van-icon) {
       transform: rotate(-45deg);
     }
   }
