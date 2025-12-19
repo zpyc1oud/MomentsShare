@@ -1,0 +1,78 @@
+/* ========================================
+ * MomentsShare 管理后台 - 马卡龙渐变粉色主题
+ * 基于 MemberC 的设计系统
+ * ======================================== */
+
+:root {
+  /* 主色调 - 甜蜜粉系列 */
+  --pink-primary: #FCAEC1;
+  --pink-light: #FCD1DB;
+  --pink-soft: rgba(252, 174, 193, 0.6);
+
+  /* 辅助色 - 香芋紫 */
+  --lavender: #B7A8D6;
+  --lavender-soft: rgba(183, 168, 214, 0.6);
+
+  /* 点缀色 - 冰川蓝 */
+  --baby-blue: #ADD9F3;
+  --baby-blue-soft: rgba(173, 217, 243, 0.6);
+
+  /* 渐变色系 */
+  --primary-gradient: linear-gradient(135deg, var(--pink-primary) 0%, var(--lavender) 50%, var(--baby-blue) 100%);
+  --primary-gradient-soft: linear-gradient(135deg, var(--pink-light) 0%, rgba(183, 168, 214, 0.8) 50%, rgba(173, 217, 243, 0.8) 100%);
+  --button-gradient: linear-gradient(135deg, var(--lavender) 0%, var(--pink-primary) 100%);
+
+  /* 网格渐变背景 (Mesh Gradient) */
+  --mesh-gradient-bg:
+    radial-gradient(ellipse at 20% 20%, rgba(252, 174, 193, 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(173, 217, 243, 0.4) 0%, transparent 45%),
+    radial-gradient(ellipse at 40% 80%, rgba(183, 168, 214, 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 90%, rgba(252, 209, 219, 0.3) 0%, transparent 40%),
+    linear-gradient(180deg, #FDF7F9 0%, #F5F0F7 50%, #F0F7FB 100%);
+
+  /* 背景色 - 柔和渐变系 */
+  --bg-base: #FAF7F9;
+  --bg-secondary: rgba(255, 255, 255, 0.6);
+  --bg-card: rgba(255, 255, 255, 0.5);
+  --bg-card-hover: rgba(255, 255, 255, 0.7);
+  --bg-input: rgba(255, 255, 255, 0.6);
+
+  /* 毛玻璃拟态 (Glassmorphism) */
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.65);
+  --glass-blur: blur(20px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+  --glass-border-light: 1px solid rgba(255, 255, 255, 0.3);
+
+  /* 文字色 - 深灰紫色系 */
+  --text-primary: #4A4458;
+  --text-secondary: #6E6783;
+  --text-muted: #9B93A8;
+  --text-placeholder: #B8B1C4;
+  --text-white: #FFFFFF;
+
+  /* 边框色 */
+  --border-color: rgba(183, 168, 214, 0.3);
+  --border-light: rgba(255, 255, 255, 0.4);
+  --border-focus: rgba(252, 174, 193, 0.5);
+
+  /* 状态色 */
+  --success-color: #7DD3A8;
+  --warning-color: #FFD789;
+  --error-color: #F5A5A5;
+  --info-color: #89C4E8;
+
+  /* 阴影 - 柔和投影 */
+  --shadow-sm: 0 2px 12px rgba(183, 168, 214, 0.15);
+  --shadow-md: 0 4px 20px rgba(183, 168, 214, 0.2);
+  --shadow-lg: 0 8px 32px rgba(183, 168, 214, 0.25);
+  --shadow-glow: 0 4px 24px rgba(252, 174, 193, 0.35);
+  --shadow-button: 0 6px 20px rgba(183, 168, 214, 0.4);
+  --shadow-inset: inset 0 2px 4px rgba(255, 255, 255, 0.8);
+
+  /* 动画 */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
