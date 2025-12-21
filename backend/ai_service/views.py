@@ -2,16 +2,17 @@ from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
-from .client import AIClient
-from .serializers import PolishSerializer, TagRecommendSerializer
+from .services import AIService
+from .serializers import PolishSerializer, TagRecommendSerializer, AIResultSerializer
 
 
 @extend_schema(
     tags=["AI服务"],
-    summary="文案润色",
-    description="使用 AI 对文案进行润色优化。\n\n"
-                "可以提供文字、图片或两者结合。AI 会根据内容生成更加生动有趣的社交媒体文案。\n\n"
-                "**注意**: text 和 image 至少提供一个。",
+    summary="文案润色与标签推荐",
+    description="使用 AI 对文案进行润色优化，并同时推荐相关标签。\n\n"
+                "**注意**: 目前主要支持文本内容。",
+    request=PolishSerializer,
+    responses={200: AIResultSerializer},
     examples=[
         OpenApiExample(
             "文字润色",
@@ -30,20 +31,22 @@ class PolishView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        client = AIClient()
-        result = client.polish(
+        service = AIService()
+        # Currently ignoring image as per implementation focus on text
+        result = service.process_content(
             text=data.get("text", ""),
-            image_file=data.get("image"),
+            model_name=data.get("model")
         )
-        return Response({"generated_text": result})
+        return Response(result)
 
 
 @extend_schema(
     tags=["AI服务"],
     summary="标签推荐",
     description="使用 AI 根据内容推荐 3-5 个相关标签。\n\n"
-                "可以提供文字、图片或两者结合。每个标签最多 10 个字符。\n\n"
-                "**注意**: text 和 image 至少提供一个。",
+                "**注意**: 目前主要支持文本内容。",
+    request=TagRecommendSerializer,
+    responses={200: {"type": "object", "properties": {"tags": {"type": "array", "items": {"type": "string"}}}}},
     examples=[
         OpenApiExample(
             "标签推荐",
@@ -62,14 +65,11 @@ class TagRecommendView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        client = AIClient()
-        tags = client.recommend_tags(
-            text=data.get("text", ""),
-            image_file=data.get("image"),
+        service = AIService()
+        # Reuse process_content but only return tags
+        result = service.process_content(
+            text=data.get("text", "")
         )
-        # Ensure constraints: 3-5 tags, each <= 10 chars
-        tags = [t[:10] for t in tags][:5]
-        if len(tags) < 3:
-            fallback = ["推荐标签", "日常", "分享"]
-            tags = tags + fallback[: 3 - len(tags)]
+        
+        tags = result.get("suggested_tags", [])
         return Response({"tags": tags})
