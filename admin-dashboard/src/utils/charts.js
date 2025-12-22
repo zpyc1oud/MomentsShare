@@ -37,13 +37,13 @@ export const userTrendChartOptions = {
     axisPointer: {
       type: 'line',
       lineStyle: {
-        color: '#409EFF',
+        color: '#87CEEB',
         width: 1
       }
     },
     formatter: function(params) {
       const data = params[0]
-      return `${data.axisValue}<br/>新增用户: <span style="color: #409EFF; font-weight: bold;">${data.value}</span> 人`
+      return `${data.axisValue}<br/>新增用户: <span style="color: #87CEEB; font-weight: bold;">${data.value}</span> 人`
     }
   },
   xAxis: {
@@ -85,11 +85,11 @@ export const userTrendChartOptions = {
       symbol: 'circle',
       symbolSize: 6,
       lineStyle: {
-        color: '#409EFF',
+        color: '#87CEEB',
         width: 3
       },
       itemStyle: {
-        color: '#409EFF',
+        color: '#87CEEB',
         borderColor: '#fff',
         borderWidth: 2
       },
@@ -98,8 +98,8 @@ export const userTrendChartOptions = {
           type: 'linear',
           x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [
-            { offset: 0, color: 'rgba(64, 158, 255, 0.4)' },
-            { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
+            { offset: 0, color: 'rgba(135, 206, 235, 0.4)' },
+            { offset: 1, color: 'rgba(135, 206, 235, 0.05)' }
           ]
         }
       },
@@ -124,13 +124,13 @@ export const dauChartOptions = {
     axisPointer: {
       type: 'line',
       lineStyle: {
-        color: '#67C23A',
+        color: '#99D98C',
         width: 1
       }
     },
     formatter: function(params) {
       const data = params[0]
-      return `${data.axisValue}<br/>日活用户: <span style="color: #67C23A; font-weight: bold;">${data.value}</span> 人`
+      return `${data.axisValue}<br/>日活用户: <span style="color: #99D98C; font-weight: bold;">${data.value}</span> 人`
     }
   },
   xAxis: {
@@ -172,11 +172,11 @@ export const dauChartOptions = {
       symbol: 'circle',
       symbolSize: 6,
       lineStyle: {
-        color: '#67C23A',
+        color: '#99D98C',
         width: 3
       },
       itemStyle: {
-        color: '#67C23A',
+        color: '#99D98C',
         borderColor: '#fff',
         borderWidth: 2
       },
@@ -185,8 +185,8 @@ export const dauChartOptions = {
           type: 'linear',
           x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [
-            { offset: 0, color: 'rgba(103, 194, 58, 0.4)' },
-            { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
+            { offset: 0, color: 'rgba(153, 217, 140, 0.4)' },
+            { offset: 1, color: 'rgba(153, 217, 140, 0.05)' }
           ]
         }
       },
@@ -220,7 +220,7 @@ export const contentDistributionChartOptions = {
     itemGap: 20,
     textStyle: {
       color: '#606266',
-      fontSize: 12
+      fontSize: 14
     }
   },
   series: [
@@ -259,16 +259,16 @@ export const contentDistributionChartOptions = {
   ]
 }
 
-// 饼图默认颜色
+// 饼图默认颜色 - 马卡龙色系
 export const pieChartColors = [
-  '#409EFF', // 蓝色
-  '#67C23A', // 绿色
-  '#E6A23C', // 橙色
-  '#F56C6C', // 红色
-  '#909399', // 灰色
-  '#B37FEB', // 紫色
-  '#F7BA2A', // 黄色
-  '#FF7F7F'  // 浅红色
+  '#87CEEB', // 天空蓝
+  '#FFB6C1', // 樱花粉
+  '#DDA0DD', // 梅花紫
+  '#98FB98', // 薄荷绿
+  '#FFE4B5', // 蜜桃橙
+  '#DDA0DD', // 梅花紫
+  '#B0E0E6', // 粉蓝色
+  '#FFEFD5'  // 木瓜橙
 ]
 
 // 图表响应式配置

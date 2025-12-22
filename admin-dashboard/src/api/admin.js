@@ -81,7 +81,8 @@ export const statisticsAPI = {
   // 从综合数据中提取用户增长趋势
   getUserTrend: () => {
     return api.get('/admin/stats/').then(data => {
-      return data.map(item => ({
+      const dailyStats = data.daily_stats || data
+      return dailyStats.map(item => ({
         date: item.date,
         count: item.daily_new_users
       }))
@@ -91,26 +92,18 @@ export const statisticsAPI = {
   // 从综合数据中提取DAU数据
   getDAUTrend: () => {
     return api.get('/admin/stats/').then(data => {
-      return data.map(item => ({
+      const dailyStats = data.daily_stats || data
+      return dailyStats.map(item => ({
         date: item.date,
         count: item.dau
       }))
     })
   },
 
-  // 生成内容类型分布数据（基于发帖数）
+  // 获取真实的内容类型分布数据
   getContentDistribution: () => {
     return api.get('/admin/stats/').then(data => {
-      // 计算总发帖数和模拟内容分布
-      const totalPosts = data.reduce((sum, item) => sum + item.daily_posts, 0)
-
-      // 基于实际数据的模拟分布
-      return [
-        { type: '图文动态', count: Math.floor(totalPosts * 0.6) },
-        { type: '视频动态', count: Math.floor(totalPosts * 0.25) },
-        { type: '纯文字', count: Math.floor(totalPosts * 0.1) },
-        { type: '转发', count: Math.floor(totalPosts * 0.05) }
-      ]
+      return data.content_distribution || []
     })
   }
 }
