@@ -12,7 +12,7 @@
           :name="isActive(item.path) ? item.activeIcon : item.icon" 
           :size="item.size || '24px'"
         />
-        <span v-if="item.badge" class="tabbar__badge">{{ item.badge }}</span>
+        <span v-if="getBadge(item)" class="tabbar__badge">{{ getBadge(item) }}</span>
       </div>
       <span class="tabbar__label">{{ item.label }}</span>
     </router-link>
@@ -20,7 +20,9 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { friendsApi } from '@/api/friends'
 
 const route = useRoute()
 
@@ -32,8 +34,30 @@ const tabs = [
   { path: '/profile', label: '我的', icon: 'user-o', activeIcon: 'user' }
 ]
 
+const pendingCount = ref(0)
+
+const fetchPendingCount = async () => {
+  try {
+    const response = await friendsApi.getPendingRequests()
+    pendingCount.value = response.results ? response.results.length : response.length
+  } catch (error) {
+    console.error('Fetch pending count error:', error)
+  }
+}
+
+onMounted(() => {
+  fetchPendingCount()
+})
+
 const isActive = (path) => {
   return route.path === path || route.path.startsWith(path + '/')
+}
+
+const getBadge = (item) => {
+  if (item.path === '/messages' && pendingCount.value > 0) {
+    return pendingCount.value
+  }
+  return null
 }
 </script>
 

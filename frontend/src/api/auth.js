@@ -29,6 +29,11 @@ export const authApi = {
     return request.get('/users/me/')
   },
 
+  // 根据 ID 获取用户信息
+  getUserById(id) {
+    return request.get(`/users/${id}/`)
+  },
+
   // 更新用户信息
   updateUserInfo(data) {
     const formData = new FormData()

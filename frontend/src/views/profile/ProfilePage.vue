@@ -11,7 +11,7 @@
         
         <div class="profile-info">
           <div class="avatar-container">
-            <img :src="user?.avatar || '/default-avatar.png'" class="profile-avatar" />
+            <img :src="normalizeAvatar(user?.avatar)" class="profile-avatar" />
           </div>
           <h2 class="profile-name">{{ user?.nickname }}</h2>
           <p class="profile-username">@{{ user?.username }}</p>
@@ -91,34 +91,67 @@ import { momentsApi } from '@/api/moments'
 
 const authStore = useAuthStore()
 
-const user = ref(authStore.userInfo)
+// 当前用户信息
+const user = ref(null)
 const stats = reactive({
   moments: 0,
   friends: 0,
   likes: 0
 })
 const moments = ref([])
+const loading = ref(true)
+const loadError = ref('')
 
 const fetchMyMoments = async () => {
   try {
     const response = await momentsApi.getMyMoments()
-    moments.value = response.results || []
-    stats.moments = response.count || moments.value.length
+    const results = response.results || []
+    moments.value = results
+    stats.moments = response.count ?? results.length
   } catch (error) {
     console.error('获取我的动态失败:', error)
+    loadError.value = '获取我的动态失败，请稍后重试'
   }
 }
 
 onMounted(async () => {
-  // 获取用户信息
-  const userInfo = await authStore.fetchUserInfo()
-  if (userInfo) {
-    user.value = userInfo
+  try {
+    // 优先使用已存在的用户信息，避免重复请求
+    if (authStore.userInfo) {
+      user.value = authStore.userInfo
+    }
+
+    // 确保用户信息最新
+    const userInfo = await authStore.fetchUserInfo()
+    if (userInfo) {
+      user.value = userInfo
+    }
+
+    // 获取我的动态列表
+    await fetchMyMoments()
+  } finally {
+    loading.value = false
   }
-  
-  // 获取我的动态列表
-  await fetchMyMoments()
 })
+
+// 头像地址兜底：
+// 1) 后端可能返回相对路径，需拼上域名
+// 2) 后端在容器中返回 host.docker.internal，宿主浏览器访问不到时，替换为 localhost
+const normalizeAvatar = (url) => {
+  if (!url) return '/default-avatar.png'
+
+  let finalUrl = url
+
+  // 宿主访问时，如果返回的是 host.docker.internal，替换成 localhost
+  if (finalUrl.includes('host.docker.internal')) {
+    finalUrl = finalUrl.replace('host.docker.internal', 'localhost')
+  }
+
+  if (finalUrl.startsWith('http')) return finalUrl
+
+  const origin = import.meta.env.VITE_API_ORIGIN || 'http://localhost:8000'
+  return `${origin}${finalUrl}`
+}
 </script>
 
 <style lang="scss" scoped>

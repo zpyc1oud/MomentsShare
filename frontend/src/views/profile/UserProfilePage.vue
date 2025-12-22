@@ -8,7 +8,7 @@
       <template v-else-if="user">
         <!-- 用户信息 -->
         <div class="user-header">
-          <img :src="user.avatar || '/default-avatar.png'" class="user-avatar" />
+          <img :src="normalizeAvatar(user?.avatar)" class="user-avatar" />
           <h2 class="user-name">{{ user.nickname }}</h2>
           <p class="user-username">@{{ user.username }}</p>
           
@@ -49,10 +49,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { showToast } from 'vant'
 import PageLayout from '@/components/layout/PageLayout.vue'
 import Loading from '@/components/common/Loading.vue'
 import MomentCard from '@/components/business/MomentCard.vue'
 import { friendsApi } from '@/api/friends'
+import { authApi } from '@/api/auth'
+import { momentsApi } from '@/api/moments'
 
 const route = useRoute()
 
@@ -64,21 +67,61 @@ const requesting = ref(false)
 
 const sendFriendRequest = async () => {
   requesting.value = true
-  
+
   try {
     await friendsApi.sendRequest(route.params.id)
-    alert('好友申请已发送')
+    showToast({
+      message: '好友申请已发送',
+      type: 'success'
+    })
   } catch (error) {
     const message = error.response?.data?.detail || '发送失败'
-    alert(message)
+    showToast({
+      message,
+      type: 'fail'
+    })
   } finally {
     requesting.value = false
   }
 }
 
+// 头像地址兜底
+const normalizeAvatar = (url) => {
+  if (!url) return '/default-avatar.png'
+
+  let finalUrl = url
+
+  if (finalUrl.includes('host.docker.internal')) {
+    finalUrl = finalUrl.replace('host.docker.internal', 'localhost')
+  }
+
+  if (finalUrl.startsWith('http')) return finalUrl
+
+  const origin = import.meta.env.VITE_API_ORIGIN || 'http://localhost:8000'
+  return `${origin}${finalUrl}`
+}
+
 onMounted(async () => {
-  // TODO: 获取用户信息和动态
-  loading.value = false
+  const userId = route.params.id
+
+  try {
+    // 并行获取用户信息和动态
+    const [userRes, momentsRes] = await Promise.all([
+      authApi.getUserById(userId),
+      momentsApi.getUserMoments(userId)
+    ])
+
+    user.value = userRes
+    moments.value = momentsRes.results || momentsRes
+  } catch (error) {
+    console.error('加载用户主页失败:', error)
+    showToast({
+      message: error.response?.data?.detail || '加载用户信息失败',
+      type: 'fail'
+    })
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 
