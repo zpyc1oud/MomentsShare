@@ -4,21 +4,23 @@ FROM python:3.10-slim
 # 设置工作目录
 WORKDIR /app
 
+# === 修改点：删除了所有的换源命令，使用官方默认源 ===
+# 这样做是为了绕过校园网坏掉的缓存代理服务器
 
-RUN find /etc/apt/ -name "*.list" -o -name "*.sources" | xargs sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' && \
-    find /etc/apt/ -name "*.list" -o -name "*.sources" | xargs sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g'
-
+# 安装系统依赖
+# 注意：这里直接运行 apt-get，不替换源
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# 3. 复制依赖文件
+# 复制依赖文件
 COPY requirements.txt .
 
-# 4. 修改 pip 源为国内镜像（清华源），解决 pip install 缓慢问题
-RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+# === pip 源可以保留阿里云，通常 pip 的代理和 apt 是分开的 ===
+# 如果 pip 之后也报错，也可以把这里改回默认
+RUN pip install --no-cache-dir -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # 复制项目代码
 COPY . .
