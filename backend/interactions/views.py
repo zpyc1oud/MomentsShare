@@ -103,8 +103,13 @@ class AvgScoreView(generics.GenericAPIView):
         if not moment_id:
             return Response({"detail": "Missing moment_id"}, status=status.HTTP_400_BAD_REQUEST)
         
-        avg_score = Rating.objects.filter(moment_id=moment_id).aggregate(Avg("score"))["score__avg"]
-        return Response({"moment_id": int(moment_id), "avg_score": avg_score or 0.0})
+        try:
+            moment_id_int = int(moment_id)
+        except ValueError:
+            return Response({"detail": "Invalid moment_id"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        avg_score = Rating.objects.filter(moment_id=moment_id_int).aggregate(Avg("score"))["score__avg"]
+        return Response({"moment_id": moment_id_int, "avg_score": avg_score or 0.0})
 
 
 @extend_schema(
