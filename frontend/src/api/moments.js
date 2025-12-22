@@ -57,6 +57,18 @@ export const momentsApi = {
     return request.get('/moments/search/', { params })
   },
 
+  // 获取搜索建议
+  getSuggestions(keyword, limit = 10) {
+    return request.get('/moments/search/suggestions/', { 
+      params: { q: keyword, limit } 
+    })
+  },
+
+  // 获取热门搜索
+  getHotSearch() {
+    return request.get('/moments/search/hot/')
+  },
+
   // 获取评论列表
   getComments(momentId, page = 1) {
     return request.get(`/moments/${momentId}/comments/`, { params: { page } })

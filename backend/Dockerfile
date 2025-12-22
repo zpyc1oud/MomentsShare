@@ -4,7 +4,8 @@ FROM python:3.10-slim
 # 设置工作目录
 WORKDIR /app
 
-# 安装系统依赖 (编译某些 Python 包可能需要 gcc, ffmpeg用于视频处理)
+RUN find /etc/apt/ -name "*.list" -o -name "*.sources" | xargs sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' && \
+    find /etc/apt/ -name "*.list" -o -name "*.sources" | xargs sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g'
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
