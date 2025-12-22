@@ -210,8 +210,8 @@ const fetchBasicStats = async () => {
 
       // 获取真实的评论数（从内容列表API）
       try {
-        const contentData = await contentAPI.getContentList({ limit: 100 })
-        const totalComments = contentData.reduce((sum, item) => sum + (item.comments_count || 0), 0)
+        const contentData = await contentAPI.getList({ limit: 100 })
+        const totalComments = contentData.results ? contentData.results.reduce((sum, item) => sum + (item.comments_count || 0), 0) : 0
         overviewCards[3].value = formatNumber(totalComments)
       } catch (commentError) {
         console.warn('获取评论数失败，使用估算值:', commentError)
@@ -364,7 +364,7 @@ const handleResize = () => {
 // 获取最近动态数据
 const fetchRecentMoments = async () => {
   try {
-    const data = await contentAPI.getContentList({ limit: 10 })
+    const data = await contentAPI.getList({ limit: 10 })
 
     console.log('API返回的原始数据:', data)
     console.log('数据类型:', typeof data)
@@ -392,7 +392,7 @@ const fetchRecentMoments = async () => {
     recentMoments.value = momentsData.map(item => ({
       id: item.id,
       user: item.author?.nickname || item.author?.username || '用户' + item.id,
-      content: item.content || (item.images && item.images.length > 0 ? '[图片动态]' : '[文字动态]'),
+      content: item.text || (item.images && item.images.length > 0 ? '[图片动态]' : '[文字动态]'),
       time: formatTimeAgo(item.created_at)
     }))
 
@@ -440,7 +440,7 @@ const deleteMoment = async (id) => {
       type: 'warning'
     })
 
-    await contentAPI.deleteContent(id)
+    await contentAPI.delete(id)
     ElMessage.success('删除成功')
 
     // 重新获取动态列表

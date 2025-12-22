@@ -26,11 +26,11 @@
             <el-icon><Document /></el-icon>
             <span>内容管理</span>
           </template>
-          <el-menu-item index="/content/moments">
+          <el-menu-item index="/dashboard/content/moments">
             <el-icon><Picture /></el-icon>
             <template #title>动态管理</template>
           </el-menu-item>
-          <el-menu-item index="/content/comments">
+          <el-menu-item index="/dashboard/content/comments">
             <el-icon><ChatDotRound /></el-icon>
             <template #title>评论管理</template>
           </el-menu-item>
@@ -41,17 +41,17 @@
             <el-icon><User /></el-icon>
             <span>用户管理</span>
           </template>
-          <el-menu-item index="/user/list">
+          <el-menu-item index="/dashboard/user/list">
             <el-icon><UserFilled /></el-icon>
             <template #title>用户列表</template>
           </el-menu-item>
-          <el-menu-item index="/user/growth">
+          <el-menu-item index="/dashboard/user/growth">
             <el-icon><TrendCharts /></el-icon>
             <template #title>增长分析</template>
           </el-menu-item>
         </el-sub-menu>
 
-        <el-menu-item index="/settings">
+        <el-menu-item index="/dashboard/settings">
           <el-icon><Setting /></el-icon>
           <template #title>系统设置</template>
         </el-menu-item>

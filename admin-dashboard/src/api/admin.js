@@ -74,13 +74,13 @@ export const authAPI = {
 // 统计数据相关API
 export const statisticsAPI = {
   // 获取综合统计数据（近7日）- 包含DAU、新增用户、发帖数
-  getAllStats: () => {
-    return api.get('/admin/stats/')
+  getAllStats: (days = 7) => {
+    return api.get('/admin/stats/', { params: { days } })
   },
 
   // 从综合数据中提取用户增长趋势
-  getUserTrend: () => {
-    return api.get('/admin/stats/').then(data => {
+  getUserTrend: (days = 7) => {
+    return api.get('/admin/stats/', { params: { days } }).then(data => {
       const dailyStats = data.daily_stats || data
       return dailyStats.map(item => ({
         date: item.date,
@@ -90,8 +90,8 @@ export const statisticsAPI = {
   },
 
   // 从综合数据中提取DAU数据
-  getDAUTrend: () => {
-    return api.get('/admin/stats/').then(data => {
+  getDAUTrend: (days = 7) => {
+    return api.get('/admin/stats/', { params: { days } }).then(data => {
       const dailyStats = data.daily_stats || data
       return dailyStats.map(item => ({
         date: item.date,
@@ -111,13 +111,39 @@ export const statisticsAPI = {
 // 内容管理相关API
 export const contentAPI = {
   // 获取内容列表
-  getContentList: (params) => {
+  getList: (params) => {
     return api.get('/admin/contents/', { params })
   },
 
   // 下架内容
-  deleteContent: (id) => {
+  delete: (id) => {
     return api.delete(`/admin/contents/${id}/`)
+  }
+}
+
+// 评论管理相关API
+export const commentAPI = {
+  // 获取评论列表
+  getList: (params) => {
+    return api.get('/admin/comments/', { params })
+  },
+
+  // 删除评论
+  delete: (id) => {
+    return api.delete(`/admin/comments/${id}/`)
+  }
+}
+
+// 用户管理相关API
+export const userAPI = {
+  // 获取用户列表
+  getList: (params) => {
+    return api.get('/admin/users/', { params })
+  },
+
+  // 更改用户状态（封禁/解封）
+  toggleStatus: (id) => {
+    return api.post(`/admin/users/${id}/status/`)
   }
 }
 
