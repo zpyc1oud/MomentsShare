@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from django.db.models import Q
+from django.db.models import Q, Count
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -120,4 +120,32 @@ class AdminStatsView(generics.GenericAPIView):
         
         # Sort by date ascending (optional, but often better for charts)
         stats_list.reverse()
-        return Response(stats_list)
+
+        # 添加内容类型分布统计
+        content_distribution = list(
+            Moment.objects.filter(is_deleted=False)
+            .values('type')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
+
+        # 格式化内容类型名称
+        type_mapping = {
+            'IMAGE': '图片动态',
+            'VIDEO': '视频动态',
+            'TEXT': '纯文字'
+        }
+
+        formatted_distribution = []
+        for item in content_distribution:
+            type_name = type_mapping.get(item['type'], item['type'])
+            formatted_distribution.append({
+                'type': type_name,
+                'count': item['count']
+            })
+
+        # 返回包含内容分布的完整统计数据
+        return Response({
+            'daily_stats': stats_list,
+            'content_distribution': formatted_distribution
+        })

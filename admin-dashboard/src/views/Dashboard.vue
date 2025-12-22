@@ -149,7 +149,7 @@ const overviewCards = reactive([
     title: '今日新增用户',
     value: '0',
     icon: 'User',
-    color: '#409eff',
+    color: '#87CEEB', // 天空蓝 - 马卡龙色系
     trend: {
       type: 'up',
       icon: 'ArrowUp',
@@ -160,7 +160,7 @@ const overviewCards = reactive([
     title: '今日活跃用户',
     value: '0',
     icon: 'TrendCharts',
-    color: '#67c23a',
+    color: '#99D98C', // 清新绿色
     trend: {
       type: 'up',
       icon: 'ArrowUp',
@@ -171,7 +171,7 @@ const overviewCards = reactive([
     title: '今日发布动态',
     value: '0',
     icon: 'Document',
-    color: '#e6a23c',
+    color: '#DDA0DD', // 梅花紫 - 马卡龙色系
     trend: {
       type: 'down',
       icon: 'ArrowDown',
@@ -182,7 +182,7 @@ const overviewCards = reactive([
     title: '今日评论互动',
     value: '0',
     icon: 'ChatDotRound',
-    color: '#f56c6c',
+    color: '#FFB6C1', // 樱花粉 - 马卡龙色系
     trend: {
       type: 'flat',
       icon: 'Minus',
@@ -199,15 +199,24 @@ const fetchBasicStats = async () => {
   try {
     const statsData = await statisticsAPI.getAllStats()
 
-    if (statsData && statsData.length > 0) {
+    if (statsData && statsData.daily_stats && statsData.daily_stats.length > 0) {
       // 使用今天的数据（数组最后一个元素）
-      const todayData = statsData[statsData.length - 1]
+      const todayData = statsData.daily_stats[statsData.daily_stats.length - 1]
 
       // 更新概览卡片数据
       overviewCards[0].value = formatNumber(todayData.daily_new_users || 0)
       overviewCards[1].value = formatNumber(todayData.dau || 0)
       overviewCards[2].value = formatNumber(todayData.daily_posts || 0)
-      overviewCards[3].value = Math.floor(todayData.daily_posts * 1.5) // 估算评论数
+
+      // 获取真实的评论数（从内容列表API）
+      try {
+        const contentData = await contentAPI.getContentList({ limit: 100 })
+        const totalComments = contentData.reduce((sum, item) => sum + (item.comments_count || 0), 0)
+        overviewCards[3].value = formatNumber(totalComments)
+      } catch (commentError) {
+        console.warn('获取评论数失败，使用估算值:', commentError)
+        overviewCards[3].value = formatNumber(todayData.daily_posts || 0)
+      }
 
       console.log('基础统计数据加载成功:', todayData)
     }
@@ -686,7 +695,7 @@ onUnmounted(() => {
 }
 
 .card-trend.down {
-  color: #FF9500;
+  color: #ff595e;
   font-weight: 700;
 }
 
