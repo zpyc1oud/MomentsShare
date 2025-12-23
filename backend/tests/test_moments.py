@@ -134,6 +134,36 @@ class TestMomentCreate:
         response = auth_client.post(url, data, format="json")
         assert response.status_code == status.HTTP_201_CREATED
 
+    def test_create_moment_with_sensitive_labels(self, auth_client, settings):
+        """Test creating moment with sensitive labels fails."""
+        # 使用 DFA 词库中的实际敏感词（如"暴力"）
+        url = "/api/v1/moments/"
+        data = {
+            "type": "IMAGE",
+            "content": "正常内容",
+            "labels": ["暴力", "美食"],  # "暴力"在敏感词库中
+        }
+        response = auth_client.post(url, data, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "标签" in str(response.data)
+        assert "#暴力" in str(response.data)
+
+    def test_create_moment_with_multiple_sensitive_labels(self, auth_client, settings):
+        """Test creating moment with multiple sensitive labels fails."""
+        url = "/api/v1/moments/"
+        data = {
+            "type": "IMAGE",
+            "content": "正常内容",
+            "labels": ["暴力", "色情"],  # 两个都是敏感词
+        }
+        response = auth_client.post(url, data, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "标签" in str(response.data)
+        # 应该显示所有违规标签
+        response_text = str(response.data)
+        assert "#暴力" in response_text
+        assert "#色情" in response_text
+
     def test_create_moment_unauthenticated(self, api_client):
         """Test creating moment without authentication fails."""
         url = "/api/v1/moments/"
