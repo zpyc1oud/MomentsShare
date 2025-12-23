@@ -4,7 +4,7 @@ import router from '@/router'
 // 创建 axios 实例
 const request = axios.create({
   baseURL: '/api/v1',
-  timeout: 15000,
+  timeout: 120000, // 默认 60 秒（适合大多数 API）
   headers: {
     'Content-Type': 'application/json'
   }

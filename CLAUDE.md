@@ -86,11 +86,18 @@ docker-compose down            # 停止所有服务
 #### 核心 Django 应用：
 - `users/` - 用户认证、个人资料、手机号认证
 - `moments/` - 动态发布（图文/视频）、AI 辅助内容
-- `friends/` - 好友关系（申请/接受/删除）
-- `interactions/` - 评论和回复
+- `friends/` - 好友关系系统（申请/接受/拒绝/删除）
+- `interactions/` - 评论和点赞功能
 - `ai_service/` - AI 文案润色和标签推荐
 - `admin_panel/` - 管理员专用内容管理和统计
 - `core/` - 共享工具（异常处理、敏感词过滤）
+
+#### 好友系统：
+- **Friendship 模型**: 支持三种状态（PENDING、ACCEPTED、REJECTED）
+- **双向关系**: from_user/to_user 字段维护双向好友关系
+- **状态转换**: PENDING → ACCEPTED/REJECTED，REJECTED → PENDING（重新申请）
+- **搜索逻辑**: 用户搜索返回所有用户（包括已有关系），通过 `friendship_status` 字段显示关系状态
+- **序列化器增强**: `UserSerializer` 包含 `friendship_status` 方法，动态计算用户间关系状态
 
 #### 认证机制：
 - 自定义 `PhoneAuthBackend` 支持手机号 + 密码登录
@@ -109,6 +116,12 @@ docker-compose down            # 停止所有服务
 - 毛玻璃拟态 UI 配合马卡龙色系（参见 `docs/STYLE_GUIDE.md`）
 - Vue 组件和 Vant UI 自动导入
 - SCSS 配合路径别名（`@components`、`@views`、`@api` 等）
+
+#### 好友系统前端实现：
+- **AddFriendPage.vue**: 用户搜索和添加好友，根据 `friendship_status` 显示不同按钮状态
+- **FriendsPage.vue**: 好友列表管理，包含本地搜索功能和快速操作栏
+- **FriendRequestsPage.vue**: 处理好友申请（接受/拒绝）
+- **MessagesPage.vue**: 消息中心，显示好友申请数量徽章
 
 ### 管理后台 (Vue 3)
 - **Vue 3 + Element Plus** 管理界面
@@ -200,21 +213,49 @@ SENSITIVE_WORDS=违禁,敏感,非法
 
 ## 特定功能说明
 
+### 好友系统功能
+- **用户搜索**: 支持按昵称/手机号搜索，返回所有用户（包括已有关系）
+- **关系状态**: 动态显示好友关系（无关系/PENDING/ACCEPTED/REJECTED）
+- **状态管理**: 不同状态显示对应操作按钮（添加/已发送/已添加）
+- **重新申请**: REJECTED状态用户可重新申请，自动转换为PENDING状态
+- **本地搜索**: 通讯录页面支持本地好友搜索，快速定位特定好友
+
 ### 视频处理
 - 视频上传触发异步 Celery 转码任务
 - 视频处理需要 FFmpeg（Docker 中已包含）
 - 处理后的视频存储在 `media/` 目录
 
 ### AI 功能
-- 通过 Google Gemini API 进行文案润色
-- 内容发现的标签推荐
-- AI 服务集成到发布流程中
+- **多模态AI支持**: 基于LangChain框架，支持文本和图片的AI分析
+- **AI润色**: 使用硅基流动/通义千问等模型进行文案润色优化
+- **智能标签**: 根据内容自动推荐3-5个相关标签
+- **视觉模型**: 自动切换到多模态模型（Qwen3-VL）处理图片内容
+- **服务集成**: AI服务集成到发布流程中，提供一键润色和标签推荐
 
 ### 管理功能
 - 独立的管理员认证系统
 - 内容审核功能
 - 带图表的统计仪表板
 - 与普通用户不同的权限级别
+
+## 好友系统开发注意事项
+
+### 后端开发
+- **搜索逻辑**: 用户搜索API不应排除已有关系的用户，返回所有用户并通过 `friendship_status` 标识关系
+- **状态管理**: 正确处理PENDING、ACCEPTED、REJECTED三种状态及其转换逻辑
+- **重新申请**: REJECTED状态允许重新申请，转换为PENDING状态而非创建新记录
+- **序列化器**: 在UserSerializer中使用 `SerializerMethodField` 动态计算好友关系状态
+
+### 前端开发
+- **状态显示**: 根据 `friendship_status` 显示对应UI状态（添加/已发送/已添加）
+- **本地搜索**: 通讯录搜索应过滤现有好友列表，不应跳转到其他页面
+- **操作逻辑**: 发送申请后更新本地状态，避免重新请求或移除用户
+- **用户体验**: 提供清晰的状态反馈和操作提示
+
+### 常见问题
+- **用户搜索**: 搜索结果包含所有用户，基于关系状态显示不同操作选项
+- **重复申请**: 检查现有Friendship记录，根据状态决定是否允许新申请
+- **状态同步**: 前端操作后及时更新本地状态，保持与后端数据一致性
 
 ## 代码质量工具
 
