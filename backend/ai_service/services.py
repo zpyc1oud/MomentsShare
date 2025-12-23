@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 
 from django.conf import settings
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.prompts import PromptTemplate
+from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
 
@@ -26,6 +26,7 @@ class AIService:
         self.api_key = settings.AI_API_KEY
         self.base_url = settings.AI_BASE_URL or None
         self.model_name = settings.AI_MODEL_NAME
+        logger.info(f"AIService initialized with default model: {self.model_name}")
         self.proxy_url = settings.AI_PROXY_URL
         self.provider = settings.AI_PROVIDER
 
@@ -40,13 +41,21 @@ class AIService:
             # os.environ["HTTP_PROXY"] = self.proxy_url
             # os.environ["HTTPS_PROXY"] = self.proxy_url
 
-    def get_llm(self, model_name: str = None) -> Optional[ChatOpenAI]:
+    def get_llm(self, model_name: str = None, image_data: str = None) -> Optional[ChatOpenAI]:
         """Initialize and return the LLM client."""
         if not self.api_key:
             return None
         
         # Use provided model_name if available, otherwise fallback to settings
         target_model = model_name or self.model_name
+        
+        # Auto-switch to Vision model if image is present but current model is not VLM
+        # Note: This is a simple heuristic. Ideally, caller should pass correct model.
+        # But for user convenience, we override here if needed.
+        if "image_data" in locals() and image_data and "VL" not in target_model and "4.6V" not in target_model:
+             # Default fallback vision model - use Qwen/Qwen3-VL-8B-Instruct
+             target_model = "Qwen/Qwen3-VL-8B-Instruct"
+             logger.info(f"Auto-switching to vision model: {target_model}")
 
         try:
             # Common arguments for ChatOpenAI
@@ -64,38 +73,85 @@ class AIService:
             logger.error(f"Failed to initialize LLM: {e}")
             return None
 
-    def process_content(self, text: str, model_name: str = None) -> Dict:
+    def process_content(self, text: str, image_data: str = None, model_name: str = None) -> Dict:
         """
-        Process user text to generate polished content and tags.
+        Process user text (and optional image) to generate polished content and tags.
         Returns a dict with 'polished_content' and 'suggested_tags'.
         """
-        llm = self.get_llm(model_name=model_name)
+        llm = self.get_llm(model_name=model_name, image_data=image_data)
+        
+        # Log effective model name
+        effective_model = model_name or self.model_name
+        logger.info(f"Processing content with model: {effective_model}, has_image: {bool(image_data)}")
+        
         if not llm:
+            logger.error("LLM initialization failed")
             return self._fallback_response(text)
 
         try:
             # Define the output parser
             parser = JsonOutputParser(pydantic_object=AIOutputSchema)
+            format_instructions = parser.get_format_instructions()
 
-            # Define the prompt template
-            prompt = PromptTemplate(
-                template="你是一个专业的社交媒体运营助手。\n"
-                         "请阅读以下用户提供的原始内容，完成两个任务：\n"
-                         "1. 润色文案：使其更加生动、有趣、吸引人，适合发朋友圈或社交媒体。\n"
-                         "2. 推荐标签：根据内容推荐3-5个相关标签，不要带#号，每个标签简短有力。\n\n"
-                         "原始内容：\n{text}\n\n"
-                         "请严格按照以下JSON格式输出，不要包含Markdown代码块标记：\n"
-                         "{format_instructions}\n",
-                input_variables=["text"],
-                partial_variables={"format_instructions": parser.get_format_instructions()},
+            # Construct System Prompt
+            system_prompt = (
+                "你是一个专业的社交媒体运营助手。\n"
+                "请阅读以下用户提供的原始内容（可能包含图片和文字），完成两个任务：\n"
+                "1. 润色文案：根据图片内容（如果有）和文字草稿，使其更加生动、有趣、吸引人，适合发朋友圈或社交媒体。\n"
+                "2. 推荐标签：根据内容（图片和文字）推荐3-5个相关标签，不要带#号，每个标签简短有力。\n\n"
+                "请严格按照以下JSON格式输出，不要包含Markdown代码块标记：\n"
+                f"{format_instructions}\n"
             )
 
-            # Create chain
-            chain = prompt | llm | parser
+            # Construct User Content (Multimodal)
+            user_content = []
+            if text:
+                user_content.append({"type": "text", "text": f"原始内容：\n{text}"})
+            
+            if image_data:
+                # Compatible with OpenAI Vision format (works for SiliconFlow/GLM-4V etc)
+                user_content.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{image_data}"
+                    }
+                })
 
-            # Invoke chain
-            result = chain.invoke({"text": text})
-            return result
+            if not user_content:
+                # Should not happen due to serializer validation, but safe check
+                return self._fallback_response(text)
+
+            # Build Messages
+            messages = [
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=user_content)
+            ]
+
+            # Invoke LLM
+            logger.info(f"Sending request to LLM: model={model_name or self.model_name}, has_image={bool(image_data)}")
+            response = llm.invoke(messages)
+            logger.info(f"LLM Response: {response.content}")
+            
+            # Parse result
+            content = response.content
+            # Cleanup potential markdown formatting if model wraps JSON in ```json ... ```
+            if "```json" in content:
+                content = content.split("```json")[1].split("```")[0].strip()
+            elif "```" in content:
+                content = content.split("```")[0].strip()
+            
+            # Special handling for GLM-4/SiliconFlow output artifacts
+            if "<|begin_of_box|>" in content:
+                content = content.replace("<|begin_of_box|>", "").replace("<|end_of_box|>", "").strip()
+            
+            # Remove any leading/trailing characters that are not part of JSON object
+            content = content.strip()
+            if not content.startswith("{") and "{" in content:
+                content = content[content.find("{"):]
+            if not content.endswith("}") and "}" in content:
+                content = content[:content.rfind("}")+1]
+
+            return parser.parse(content)
 
         except Exception as e:
             logger.error(f"AI processing failed: {e}")

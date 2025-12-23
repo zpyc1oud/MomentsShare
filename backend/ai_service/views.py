@@ -1,3 +1,4 @@
+import base64
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework import generics, permissions
 from rest_framework.response import Response
@@ -6,11 +7,31 @@ from .services import AIService
 from .serializers import PolishSerializer, TagRecommendSerializer, AIResultSerializer
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+def _process_image(image_file):
+    """Process uploaded image file to base64 string"""
+    if not image_file:
+        return None
+    try:
+        # Read file content
+        image_content = image_file.read()
+        logger.info(f"Processing image: size={len(image_content)} bytes, name={getattr(image_file, 'name', 'unknown')}")
+        # Encode to base64
+        base64_encoded = base64.b64encode(image_content).decode('utf-8')
+        return base64_encoded
+    except Exception as e:
+        logger.error(f"Image processing failed: {e}")
+        return None
+
+
 @extend_schema(
     tags=["AI服务"],
     summary="文案润色与标签推荐",
     description="使用 AI 对文案进行润色优化，并同时推荐相关标签。\n\n"
-                "**注意**: 目前主要支持文本内容。",
+                "支持文本和图片内容（多模态）。",
     request=PolishSerializer,
     responses={200: AIResultSerializer},
     examples=[
@@ -32,9 +53,13 @@ class PolishView(generics.GenericAPIView):
         data = serializer.validated_data
 
         service = AIService()
-        # Currently ignoring image as per implementation focus on text
+        
+        # Process image if present
+        image_data = _process_image(data.get("image"))
+        
         result = service.process_content(
             text=data.get("text", ""),
+            image_data=image_data,
             model_name=data.get("model")
         )
         return Response(result)
@@ -44,7 +69,7 @@ class PolishView(generics.GenericAPIView):
     tags=["AI服务"],
     summary="标签推荐",
     description="使用 AI 根据内容推荐 3-5 个相关标签。\n\n"
-                "**注意**: 目前主要支持文本内容。",
+                "支持文本和图片内容（多模态）。",
     request=TagRecommendSerializer,
     responses={200: {"type": "object", "properties": {"tags": {"type": "array", "items": {"type": "string"}}}}},
     examples=[
@@ -66,9 +91,14 @@ class TagRecommendView(generics.GenericAPIView):
         data = serializer.validated_data
 
         service = AIService()
+        
+        # Process image if present
+        image_data = _process_image(data.get("image"))
+        
         # Reuse process_content but only return tags
         result = service.process_content(
-            text=data.get("text", "")
+            text=data.get("text", ""),
+            image_data=image_data
         )
         
         tags = result.get("suggested_tags", [])
