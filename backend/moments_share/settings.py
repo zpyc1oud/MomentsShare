@@ -166,8 +166,15 @@ CELERY_RESULT_SERIALIZER = "json"
 
 SENSITIVE_WORDS = os.getenv("SENSITIVE_WORDS", "违禁,敏感,非法").split(",")
 
-# Google Generative AI configuration
+# Google Generative AI configuration (Deprecated, will use AI_* settings below)
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_AI_MODEL = os.getenv("GOOGLE_AI_MODEL", "gemini-1.5-flash")
+
+# AI Service Configuration (LangChain)
+AI_PROVIDER = os.getenv("AI_PROVIDER", "openai")  # openai, zhipu, etc.
+AI_API_KEY = os.getenv("AI_API_KEY", "")
+AI_BASE_URL = os.getenv("AI_BASE_URL", "")  # Optional: Custom API base URL
+AI_MODEL_NAME = os.getenv("AI_MODEL_NAME", "gpt-3.5-turbo")
+AI_PROXY_URL = os.getenv("AI_PROXY_URL", "")  # Optional: Proxy URL (e.g. http://127.0.0.1:7890)
 
 CORS_ALLOW_ALL_ORIGINS = True

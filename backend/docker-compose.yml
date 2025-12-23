@@ -39,6 +39,12 @@ services:
       - DB_PASSWORD=postgres
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      # AI Service Configuration
+      - AI_PROVIDER=openai
+      - AI_API_KEY=sk-mbddibjsghfxgglxzexymxrxcskkpodmtflrxfpymjdyrnwq
+      - AI_BASE_URL=https://api.siliconflow.cn/v1
+      - AI_MODEL_NAME=Qwen/Qwen2.5-7B-Instruct
+      - AI_PROXY_URL=
 
   # 4. Celery Worker (处理视频转码任务)
   worker:
@@ -59,6 +65,12 @@ services:
       - DB_PASSWORD=postgres
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      # AI Service Configuration
+      - AI_PROVIDER=openai
+      - AI_API_KEY=sk-mbddibjsghfxgglxzexymxrxcskkpodmtflrxfpymjdyrnwq
+      - AI_BASE_URL=https://api.siliconflow.cn/v1
+      - AI_MODEL_NAME=Qwen/Qwen2.5-7B-Instruct
+      - AI_PROXY_URL=
 
 volumes:
   postgres_data:

@@ -1,17 +1,39 @@
+import base64
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 
-from .client import AIClient
-from .serializers import PolishSerializer, TagRecommendSerializer
+from .services import AIService
+from .serializers import PolishSerializer, TagRecommendSerializer, AIResultSerializer
+
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+def _process_image(image_file):
+    """Process uploaded image file to base64 string"""
+    if not image_file:
+        return None
+    try:
+        # Read file content
+        image_content = image_file.read()
+        logger.info(f"Processing image: size={len(image_content)} bytes, name={getattr(image_file, 'name', 'unknown')}")
+        # Encode to base64
+        base64_encoded = base64.b64encode(image_content).decode('utf-8')
+        return base64_encoded
+    except Exception as e:
+        logger.error(f"Image processing failed: {e}")
+        return None
 
 
 @extend_schema(
     tags=["AI服务"],
-    summary="文案润色",
-    description="使用 AI 对文案进行润色优化。\n\n"
-                "可以提供文字、图片或两者结合。AI 会根据内容生成更加生动有趣的社交媒体文案。\n\n"
-                "**注意**: text 和 image 至少提供一个。",
+    summary="文案润色与标签推荐",
+    description="使用 AI 对文案进行润色优化，并同时推荐相关标签。\n\n"
+                "支持文本和图片内容（多模态）。",
+    request=PolishSerializer,
+    responses={200: AIResultSerializer},
     examples=[
         OpenApiExample(
             "文字润色",
@@ -30,20 +52,26 @@ class PolishView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        client = AIClient()
-        result = client.polish(
+        service = AIService()
+        
+        # Process image if present
+        image_data = _process_image(data.get("image"))
+        
+        result = service.process_content(
             text=data.get("text", ""),
-            image_file=data.get("image"),
+            image_data=image_data,
+            model_name=data.get("model")
         )
-        return Response({"generated_text": result})
+        return Response(result)
 
 
 @extend_schema(
     tags=["AI服务"],
     summary="标签推荐",
     description="使用 AI 根据内容推荐 3-5 个相关标签。\n\n"
-                "可以提供文字、图片或两者结合。每个标签最多 10 个字符。\n\n"
-                "**注意**: text 和 image 至少提供一个。",
+                "支持文本和图片内容（多模态）。",
+    request=TagRecommendSerializer,
+    responses={200: {"type": "object", "properties": {"tags": {"type": "array", "items": {"type": "string"}}}}},
     examples=[
         OpenApiExample(
             "标签推荐",
@@ -62,14 +90,16 @@ class TagRecommendView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        client = AIClient()
-        tags = client.recommend_tags(
+        service = AIService()
+        
+        # Process image if present
+        image_data = _process_image(data.get("image"))
+        
+        # Reuse process_content but only return tags
+        result = service.process_content(
             text=data.get("text", ""),
-            image_file=data.get("image"),
+            image_data=image_data
         )
-        # Ensure constraints: 3-5 tags, each <= 10 chars
-        tags = [t[:10] for t in tags][:5]
-        if len(tags) < 3:
-            fallback = ["推荐标签", "日常", "分享"]
-            tags = tags + fallback[: 3 - len(tags)]
+        
+        tags = result.get("suggested_tags", [])
         return Response({"tags": tags})
