@@ -4,9 +4,7 @@ FROM python:3.10-slim
 # 设置工作目录
 WORKDIR /app
 
-# === 解决冲突：保留了阿里云镜像源 ===
-# 你的队友试图改回官方源，但在你的校园网环境下，官方源会导致构建失败 (timeout)。
-# 所以这里保留 sed 命令，强制使用阿里云镜像。
+# === 关键修正：保留阿里云镜像源（适配校园网环境） ===
 RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources \
     && sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources
 
@@ -20,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 # 复制依赖文件
 COPY requirements.txt .
 
-# === pip 源保留阿里云 ===
+# === 关键修正：pip 也使用阿里云源 ===
 RUN pip install --no-cache-dir -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # 复制项目代码
@@ -28,9 +26,7 @@ COPY . .
 
 RUN mkdir -p /app/locale
 
-# 复制默认头像到临时位置（volume 挂载后会覆盖 /app/media）
-# 注意：确保你本地 backend/media/ 目录下确实有 default_avatar.png，否则这一步会报错
-# 如果没有图片，可以暂时注释掉下面这一行
+# 复制默认头像（如果本地没有这个文件，构建报错的话可以先把这行注释掉）
 RUN mkdir -p /app/defaults && cp /app/media/default_avatar.png /app/defaults/
 
 # 暴露端口

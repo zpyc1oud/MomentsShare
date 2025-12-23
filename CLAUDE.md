@@ -27,6 +27,9 @@ pytest --cov                        # 运行测试并查看覆盖率
 pytest tests/test_users.py          # 运行特定模块测试
 pytest -v                           # 详细测试输出
 
+# AI 模型测试
+python test_ai_models.py            # 测试所有 AI 模型是否正常工作
+
 # 数据库迁移
 python manage.py makemigrations
 python manage.py migrate
@@ -102,7 +105,9 @@ docker-compose down            # 停止所有服务
 #### 认证机制：
 - 自定义 `PhoneAuthBackend` 支持手机号 + 密码登录
 - JWT Token：60分钟访问令牌，7天刷新令牌
+- Token刷新端点：`/api/v1/auth/token/refresh/` (使用 `TokenRefreshView`)
 - 除 `/auth/` 外所有 API 端点都需要认证
+- 前端拦截器自动刷新过期token，失败时清除状态并跳转登录
 
 ### 前端结构 (Vue 3 移动端)
 - **Vue 3 + Composition API** 配合 **Vite 5**
@@ -129,6 +134,29 @@ docker-compose down            # 停止所有服务
 - Axios API 通信
 
 ## 核心开发模式
+
+### 架构关键点
+
+#### Token刷新流程
+需要理解以下文件间的协作：
+1. **后端**: `users/auth_urls.py` - 提供 `/auth/token/refresh/` 端点
+2. **前端**: `api/request.js` - 响应拦截器捕获401错误并自动刷新token
+3. **前端**: `stores/auth.js` - Pinia store 管理token状态，保持与localStorage同步
+
+流程：API调用失败(401) → 拦截器捕获 → 调用refresh端点 → 更新localStorage和Pinia → 重试原请求 → 失败则跳转登录
+
+#### AI模型切换架构
+需要理解以下文件间的协作：
+1. **后端**: `ai_service/services.py` - `AIService.get_llm()` 根据model_name动态初始化模型
+2. **后端**: `ai_service/views.py` - 接收model参数，传递给service层
+3. **前端**: `views/publish/PublishPage.vue` - 模型选择器UI，管理selectedModelIndex状态
+4. **前端**: `api/ai.js` - API调用时携带model参数，设置AI专用超时
+
+流程：用户选择模型 → 前端保存状态 → API调用携带model参数 → 后端get_llm()初始化指定模型 → 自动检测是否为视觉模型 → 非视觉模型+图片则切换到Qwen3-VL
+
+#### 视频首帧截取流程
+1. **前端**: `views/publish/PublishPage.vue` - `captureVideoFrame()` 函数
+2. 使用HTML5 Video API加载视频元数据 → 跳转到0秒 → Canvas绘制当前帧 → 转换为Blob → 创建File对象 → 传递给AI API
 
 ### 后端 API 设计
 - RESTful 端点位于 `/api/v1/`
@@ -165,7 +193,14 @@ DB_PORT=5432
 CELERY_BROKER_URL=redis://localhost:6379/0
 CELERY_RESULT_BACKEND=redis://localhost:6379/0
 
-# Google AI
+# AI Service Configuration (使用 OpenAI 兼容接口)
+AI_PROVIDER=openai                    # 提供商：openai, zhipu 等
+AI_API_KEY=your-api-key               # API 密钥
+AI_BASE_URL=https://api.siliconflow.cn/v1  # API 基础 URL
+AI_MODEL_NAME=Qwen/Qwen2.5-7B-Instruct  # 默认模型
+AI_PROXY_URL=                         # 可选：代理 URL
+
+# Google AI (已弃用，保留向后兼容)
 GOOGLE_API_KEY=your-google-api-key
 GOOGLE_AI_MODEL=gemini-1.5-flash
 
@@ -174,8 +209,9 @@ SENSITIVE_WORDS=违禁,敏感,非法
 ```
 
 #### 前端
-- 代理配置指向后端 `http://localhost:8000`
+- Vite 代理配置：`/api` → `http://localhost:8000`，`/media` → `http://localhost:8000`
 - 启用 Vant 组件和 Vue API 自动导入
+- SCSS 全局变量通过 `vite.config.js` 自动注入每个组件
 
 ## 测试策略
 
@@ -224,13 +260,56 @@ SENSITIVE_WORDS=违禁,敏感,非法
 - 视频上传触发异步 Celery 转码任务
 - 视频处理需要 FFmpeg（Docker 中已包含）
 - 处理后的视频存储在 `media/` 目录
+- **首帧截取**: 前端使用 Canvas API 截取视频首帧，用于 AI 视觉识别
+- **视频状态**: `PROCESSING` (处理中) → `READY` (就绪) / `FAILED` (失败)
+- **Celery 任务**: 异步转码、生成缩略图、更新视频状态
 
 ### AI 功能
-- **多模态AI支持**: 基于LangChain框架，支持文本和图片的AI分析
-- **AI润色**: 使用硅基流动/通义千问等模型进行文案润色优化
-- **智能标签**: 根据内容自动推荐3-5个相关标签
-- **视觉模型**: 自动切换到多模态模型（Qwen3-VL）处理图片内容
-- **服务集成**: AI服务集成到发布流程中，提供一键润色和标签推荐
+- **多模态AI支持**: 基于LangChain框架，使用OpenAI兼容接口调用多个AI模型
+- **AI润色**: 使用硅基流动/通义千问/智谱GLM/阶跃星辰等模型进行文案润色优化
+- **智能标签**: 根据内容（文本+图片/视频首帧）自动推荐3-5个相关标签
+- **视觉模型**: 自动检测模型类型，非视觉模型处理图片时自动切换到Qwen3-VL
+- **模型切换**: 前端发布页支持动态切换AI模型（Qwen2.5、Qwen3-VL、GLM-4.6V、stepfun-ai/step3）
+- **视频处理**: 上传视频时自动截取首帧用于AI视觉识别
+- **超时管理**: 分层超时配置（默认120s → AI专用180s → GLM模型120s）
+
+#### AI模型配置
+支持的AI模型（通过环境变量或前端选择）：
+- `Qwen/Qwen2.5-7B-Instruct` - 通义千问文本模型（默认）
+- `Qwen/Qwen3-VL-8B-Instruct` - 通义千问视觉多模态模型
+- `zai-org/GLM-4.6V` - 智谱GLM视觉模型（响应较慢，需要更长超时）
+- `stepfun-ai/step3` - 阶跃星辰多模态模型
+
+视觉模型检测关键词：`VL`、`V-`、`4.6V`、`GLM-4.6V`、`step3`、`stepfun`、`vision`、`multimodal`
+
+## AI 功能开发注意事项
+
+### 后端开发 (ai_service/)
+- **服务架构**: `AIService` 类封装所有AI调用，使用 LangChain 的 ChatOpenAI 接口
+- **模型切换**: 通过 `model_name` 参数动态切换模型，支持运行时模型选择
+- **超时配置**: GLM模型需要更长超时（120s），其他模型默认90s
+- **视觉检测**: 自动检测模型是否支持视觉，非视觉模型处理图片时自动切换
+- **响应清理**: 处理GLM等模型的特殊输出格式（如 `<think>` 标签）
+- **降级策略**: AI失败时返回原文内容作为降级响应
+
+### 前端开发
+- **超时层级**: `request.js` (120s) → `ai.js` (180s) → 后端 (90-120s)
+- **模型选择**: 发布页 `PublishPage.vue` 包含模型选择器，支持4个模型切换
+- **视频帧捕获**: 使用 Canvas API 截取视频首帧，转换为 File 对象供AI使用
+- **错误处理**: 错误响应的 `detail` 字段可能是对象，需要类型检查后再显示
+- **Token刷新**: 响应拦截器自动刷新过期token，同步更新 Pinia store
+
+### AI模型测试
+使用 `backend/test_ai_models.py` 脚本测试所有模型：
+```bash
+cd backend
+python test_ai_models.py
+```
+
+### 常见问题
+- **GLM超时**: GLM模型响应慢，前端显示提示让用户耐心等待
+- **视频帧捕获**: 确保视频加载完成（`onloadedmetadata` 和 `onseeked`）后再截取
+- **Token过期**: 401错误时前端自动刷新token，刷新失败跳转登录页
 
 ### 管理功能
 - 独立的管理员认证系统

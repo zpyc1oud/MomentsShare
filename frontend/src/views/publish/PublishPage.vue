@@ -525,9 +525,9 @@ const selectModel = (index) => {
 
 const handlePublish = async () => {
   if (!canPublish.value) return
-  
+
   publishing.value = true
-  
+
   try {
     await momentsApi.create({
       content: form.content,
@@ -536,11 +536,40 @@ const handlePublish = async () => {
       video: form.type === 'VIDEO' ? form.video : null,
       labels: form.labels
     })
-    
+
     router.push('/home')
   } catch (error) {
     console.error('Publish error:', error)
-    alert(error.response?.data?.detail?.content?.[0] || '发布失败')
+    // 提取错误消息，处理可能的敏感词错误
+    let errorMessage = '发布失败，请重试'
+
+    if (error.response?.data) {
+      const detail = error.response.data.detail
+
+      // 检查是否是敏感词错误
+      if (detail?.content) {
+        // 内容敏感词错误
+        if (Array.isArray(detail.content)) {
+          errorMessage = detail.content[0] || errorMessage
+        } else {
+          errorMessage = detail.content
+        }
+      } else if (detail?.labels) {
+        // 标签敏感词错误
+        if (Array.isArray(detail.labels)) {
+          errorMessage = detail.labels[0] || errorMessage
+        } else {
+          errorMessage = detail.labels
+        }
+      } else if (typeof detail === 'string') {
+        errorMessage = detail
+      } else if (detail?.message) {
+        errorMessage = detail.message
+      }
+    }
+
+    // 使用自定义提示框显示错误
+    showCustomToast(errorMessage, 'warning')
   } finally {
     publishing.value = false
   }
