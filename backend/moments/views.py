@@ -134,6 +134,25 @@ class MyMomentsView(generics.ListAPIView):
 
 @extend_schema(
     tags=["动态"],
+    summary="用户动态列表",
+    description="获取指定用户发布的所有动态，按时间倒序排列，支持分页。",
+)
+class UserMomentsView(generics.ListAPIView):
+    """指定用户动态列表接口"""
+    serializer_class = MomentListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id")
+        return (
+            Moment.objects.filter(author_id=user_id, is_deleted=False)
+            .filter(Q(type=Moment.MomentType.IMAGE) | Q(video_status=Moment.VideoStatus.READY))
+            .order_by("-created_at")
+        )
+
+
+@extend_schema(
+    tags=["动态"],
     summary="搜索动态",
     description="根据关键词、标签、日期范围搜索动态。",
     parameters=[

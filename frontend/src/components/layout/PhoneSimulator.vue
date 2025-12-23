@@ -129,7 +129,7 @@ onUnmounted(() => {
   }
 }
 
-// 状态栏
+// 状态栏 - 透明覆盖层
 .status-bar {
   position: absolute;
   top: 0;
@@ -142,6 +142,8 @@ onUnmounted(() => {
   padding: 12px 28px 0;
   z-index: 100;
   color: $text-primary;
+  background: transparent;
+  pointer-events: none;
   
   .time {
     font-size: $font-size-sm;
@@ -198,13 +200,13 @@ onUnmounted(() => {
   }
 }
 
-// 内容区域
+// 内容区域 - 占满全屏
 .phone-content {
   position: absolute;
-  top: $status-bar-height;
+  top: 0;
   left: 0;
   right: 0;
-  bottom: 34px;
+  bottom: 0;
   overflow: hidden;
   background: transparent;
 }
@@ -257,7 +259,7 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-// 底部指示条
+// 底部指示条 - 透明覆盖层
 .home-indicator {
   position: absolute;
   bottom: 8px;
@@ -267,6 +269,8 @@ onUnmounted(() => {
   height: 5px;
   background: rgba($text-primary, 0.25);
   border-radius: 3px;
+  z-index: 100;
+  pointer-events: none;
 }
 
 // 响应式处理

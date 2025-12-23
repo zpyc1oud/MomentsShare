@@ -7,8 +7,8 @@
       
       <template v-else-if="user">
         <!-- 用户信息 -->
-        <div class="user-header">
-          <img :src="normalizeAvatar(user?.avatar)" class="user-avatar" />
+        <div class="user-header" style="display: flex; flex-direction: column; align-items: center;">
+          <img :src="normalizeAvatar(user?.avatar)" class="user-avatar" style="display: block; margin: 0 auto;" />
           <h2 class="user-name">{{ user.nickname }}</h2>
           <p class="user-username">@{{ user.username }}</p>
           
@@ -138,6 +138,9 @@ onMounted(async () => {
 }
 
 .user-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   padding: $spacing-xl 0;
 }

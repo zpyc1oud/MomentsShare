@@ -1,11 +1,12 @@
-from django.db.models import Avg
+from django.db.models import Avg, Q, Max, Count
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample, OpenApiParameter
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
 from moments.models import Moment
-from .models import Comment, Rating, Like
-from .serializers import CommentSerializer, RatingSerializer, LikeSerializer
+from users.models import User
+from .models import Comment, Rating, Like, Message
+from .serializers import CommentSerializer, RatingSerializer, LikeSerializer, MessageSerializer, ConversationSerializer
 
 
 @extend_schema_view(
@@ -148,3 +149,127 @@ class LikeView(generics.CreateAPIView):
                 "likes_count": Like.objects.filter(moment=moment).count(),
                 "like": serializer.data
             }, status=status.HTTP_201_CREATED)
+
+
+# ========== 私信相关视图 ==========
+
+@extend_schema(
+    tags=["私信"],
+    summary="发送私信",
+    description="向好友发送私信消息。只能给已添加的好友发送私信。",
+    request=MessageSerializer,
+    responses={201: MessageSerializer},
+)
+class SendMessageView(generics.CreateAPIView):
+    """发送私信接口"""
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+@extend_schema(
+    tags=["私信"],
+    summary="获取会话列表",
+    description="获取当前用户的所有私信会话列表，按最后消息时间倒序排列。",
+)
+class ConversationListView(generics.GenericAPIView):
+    """会话列表接口"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        
+        # 获取所有与当前用户相关的消息
+        messages = Message.objects.filter(Q(sender=user) | Q(receiver=user))
+        
+        # 找出所有对话的用户
+        conversation_users = set()
+        for msg in messages:
+            if msg.sender_id == user.id:
+                conversation_users.add(msg.receiver_id)
+            else:
+                conversation_users.add(msg.sender_id)
+        
+        conversations = []
+        for other_user_id in conversation_users:
+            other_user = User.objects.get(id=other_user_id)
+            
+            # 获取与该用户的最后一条消息
+            last_msg = Message.objects.filter(
+                (Q(sender=user) & Q(receiver_id=other_user_id)) |
+                (Q(sender_id=other_user_id) & Q(receiver=user))
+            ).order_by('-created_at').first()
+            
+            # 获取未读消息数
+            unread_count = Message.objects.filter(
+                sender_id=other_user_id,
+                receiver=user,
+                is_read=False
+            ).count()
+            
+            conversations.append({
+                'user': {
+                    'id': other_user.id,
+                    'nickname': other_user.nickname,
+                    'avatar': other_user.avatar.url if other_user.avatar else None
+                },
+                'last_message': last_msg.content[:50] if last_msg else '',
+                'last_message_time': last_msg.created_at if last_msg else None,
+                'unread_count': unread_count
+            })
+        
+        # 按最后消息时间排序
+        conversations.sort(key=lambda x: x['last_message_time'] or '', reverse=True)
+        
+        return Response(conversations)
+
+
+@extend_schema(
+    tags=["私信"],
+    summary="获取与指定用户的消息记录",
+    description="获取与指定用户的私信记录，按时间顺序排列。同时将未读消息标记为已读。",
+)
+class MessageHistoryView(generics.ListAPIView):
+    """消息记录接口"""
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        other_user_id = self.kwargs.get('user_id')
+        
+        # 获取与该用户的所有消息
+        return Message.objects.filter(
+            (Q(sender=user) & Q(receiver_id=other_user_id)) |
+            (Q(sender_id=other_user_id) & Q(receiver=user))
+        ).order_by('created_at')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        
+        # 将收到的未读消息标记为已读
+        other_user_id = self.kwargs.get('user_id')
+        Message.objects.filter(
+            sender_id=other_user_id,
+            receiver=request.user,
+            is_read=False
+        ).update(is_read=True)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+@extend_schema(
+    tags=["私信"],
+    summary="获取未读消息数",
+    description="获取当前用户的未读私信总数。",
+)
+class UnreadCountView(generics.GenericAPIView):
+    """未读消息数接口"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        count = Message.objects.filter(
+            receiver=request.user,
+            is_read=False
+        ).count()
+        return Response({'unread_count': count})

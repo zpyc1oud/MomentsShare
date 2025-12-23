@@ -248,7 +248,7 @@ const normalizeAvatar = (url) => {
 
 .edit-btn {
   position: absolute;
-  top: $spacing-md;
+  top: calc($status-bar-height + $spacing-md);
   right: $spacing-md;
   padding: 10px 18px;
   background: $glass-bg-heavy;

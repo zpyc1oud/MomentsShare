@@ -2,28 +2,9 @@
 
 基于 Django REST Framework 构建的社交分享平台后端 API 服务，支持用户动态发布、好友关系、评论互动及 AI 辅助功能。
 
-## 🚀 快速开始
+## 🚀 快速开始（Docker）
 
-### 本地开发
-
-```bash
-# 安装依赖
-pip install -r requirements.txt
-
-# 数据库迁移
-python manage.py migrate
-
-# 创建超级用户
-python manage.py createsuperuser
-
-# 启动开发服务器 (端口 8000)
-python manage.py runserver
-
-# 启动 Celery Worker (用于视频转码)
-celery -A moments_share worker -l info
-```
-
-### Docker 部署
+### 启动服务
 
 ```bash
 # 使用 Docker Compose 启动所有服务
@@ -32,9 +13,83 @@ docker-compose up -d
 # 查看服务状态
 docker-compose ps
 
+# 查看日志
+docker-compose logs -f web
+```
+
+### 初始化数据
+
+首次启动后需要**生成测试数据**：
+
+```bash
+# 数据库迁移（如需要）
+docker-compose exec web python manage.py migrate
+
+# 生成测试数据（首次使用前必须执行）
+docker-compose exec web python manage.py seed_data --skip-media
+
+# 创建超级用户（可选）
+docker-compose exec web python manage.py createsuperuser
+```
+
+### 测试数据命令
+
+```bash
+# 生成测试数据（如果已存在则跳过）
+docker-compose exec web python manage.py seed_data
+
+# 强制重新生成（清除旧数据）
+docker-compose exec web python manage.py seed_data --force
+
+# 跳过下载媒体文件（加速测试）
+docker-compose exec web python manage.py seed_data --skip-media
+
+# 强制重新生成且跳过媒体
+docker-compose exec web python manage.py seed_data --force --skip-media
+```
+
+### 停止服务
+
+```bash
 # 停止服务
 docker-compose down
+
+# 停止服务并删除数据卷
+docker-compose down -v
 ```
+
+## 🧪 测试账号
+
+系统预置了 8 个测试账号，密码统一为 `Test123456`：
+
+| 手机号 | 用户名 | 昵称 | 密码 | 说明 |
+|--------|--------|------|------|------|
+| **13800000001** | **alice** | **爱丽丝** | **Test123456** | ⭐ 推荐使用，有3个好友 |
+| 13800000002 | bob | 鲍勃 | Test123456 | 有3个好友 |
+| 13800000003 | charlie | 查理 | Test123456 | 有4个好友 |
+| 13800000004 | diana | 戴安娜 | Test123456 | 有3个好友 |
+| 13800000005 | evan | 伊万 | Test123456 | 有3个好友 |
+| 13800000006 | fiona | 菲奥娜 | Test123456 | 有3个好友 |
+| 13800000007 | george | 乔治 | Test123456 | 有3个好友 |
+| 13800000008 | helen | 海伦 | Test123456 | 有2个好友 |
+
+### 测试数据说明
+
+- **用户**: 8 个测试用户，每个用户有头像
+- **好友关系**: 12 对已接受的好友关系 + 2 个待处理的好友请求
+- **动态**: 每个用户 2-4 条动态（图片/视频），共约 20-30 条
+- **互动**: 每条动态有随机的点赞、评论、评分
+- **标签**: 多种标签（日常、美食、旅行、心情等）
+
+### 推荐测试流程
+
+1. 使用 `alice (13800000001)` 登录
+2. 查看好友动态流（Feed）
+3. 发布新动态（图片/视频）
+4. 点赞、评论好友动态
+5. 搜索动态（支持拼音搜索）
+6. 查看待处理的好友请求（helen 发给 alice 的请求）
+7. 添加新好友
 
 ## 📱 核心功能
 
@@ -128,16 +183,16 @@ backend/
 
 ```bash
 # 运行所有测试
-pytest
+docker-compose exec web pytest
 
 # 查看测试覆盖率
-pytest --cov
+docker-compose exec web pytest --cov
 
 # 运行特定模块测试
-pytest tests/test_users.py
+docker-compose exec web pytest tests/test_users.py
 
 # 详细输出
-pytest -v
+docker-compose exec web pytest -v
 ```
 
 ## 📚 API 文档
@@ -161,6 +216,7 @@ pytest -v
 | **用户** |||
 | GET/PUT | `/api/v1/users/me/` | 当前用户信息 |
 | POST | `/api/v1/users/me/phone/` | 更换手机号 |
+| GET | `/api/v1/users/{id}/` | 获取用户资料 |
 | **动态** |||
 | POST | `/api/v1/moments/` | 发布动态 |
 | GET | `/api/v1/moments/{id}/` | 动态详情 |
@@ -172,6 +228,11 @@ pytest -v
 | DELETE | `/api/v1/friends/{user_id}/` | 删除好友 |
 | **评论** |||
 | GET/POST | `/api/v1/moments/{id}/comments/` | 评论操作 |
+| **私信** |||
+| POST | `/api/v1/interactions/messages/` | 发送私信 |
+| GET | `/api/v1/interactions/messages/conversations/` | 会话列表 |
+| GET | `/api/v1/interactions/messages/{user_id}/` | 消息记录 |
+| GET | `/api/v1/interactions/messages/unread/` | 未读消息数 |
 | **AI** |||
 | POST | `/api/v1/ai/polish/` | 文案润色 |
 | POST | `/api/v1/ai/recommend-tags/` | 标签推荐 |

@@ -10,6 +10,7 @@ from .serializers import (
     PhoneChangeSerializer,
     PhoneTokenObtainPairSerializer,
     RegisterSerializer,
+    UserSerializer,
 )
 
 
@@ -137,4 +138,17 @@ class PhoneChangeView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"detail": "手机号已更新"})
+
+
+@extend_schema(
+    tags=["用户"],
+    summary="获取用户资料",
+    description="根据用户ID获取用户的公开资料信息，包括好友关系状态。",
+)
+class UserProfileView(generics.RetrieveAPIView):
+    """用户资料接口"""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
 
