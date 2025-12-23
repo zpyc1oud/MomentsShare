@@ -15,6 +15,7 @@ urlpatterns = [
     path("api/v1/moments/", include("moments.urls")),
     path("api/v1/friends/", include("friends.urls")),
     path("api/v1/moments/", include("interactions.urls")),
+    path("api/v1/interactions/", include("interactions.urls")),
     path("api/v1/ai/", include("ai_service.urls")),
     path("api/v1/admin/", include("admin_panel.urls")),
     # API 文档

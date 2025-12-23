@@ -101,6 +101,9 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+// 安全区域高度
+$safe-area-bottom: 34px;
+
 .page-layout {
   position: relative;
   height: 100%;
@@ -109,11 +112,13 @@ defineExpose({
   background: transparent;
   
   &.has-navbar:not(.nav-transparent) .page-content {
-    padding-top: $navbar-height;
+    // NavBar现在包含status-bar区域
+    padding-top: calc($navbar-height + $status-bar-height);
   }
   
   &.has-tabbar .page-content {
-    padding-bottom: $tabbar-height;
+    // TabBar现在包含home indicator区域
+    padding-bottom: calc($tabbar-height + $safe-area-bottom);
   }
 }
 

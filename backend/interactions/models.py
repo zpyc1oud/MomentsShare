@@ -47,3 +47,18 @@ class Rating(models.Model):
 
     def __str__(self):
         return f"{self.user} rated {self.moment} - {self.score}"
+
+
+class Message(models.Model):
+    """私信消息模型"""
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
+    content = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.sender} -> {self.receiver}: {self.content[:20]}"

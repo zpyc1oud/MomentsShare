@@ -40,11 +40,11 @@ defineEmits(['back'])
   top: 0;
   left: 0;
   right: 0;
-  height: $navbar-height;
+  height: calc($navbar-height + $status-bar-height);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  padding: 0 $spacing-md;
+  padding: 0 $spacing-md $spacing-sm;
   background: $glass-bg-heavy;
   backdrop-filter: $glass-blur;
   -webkit-backdrop-filter: $glass-blur;

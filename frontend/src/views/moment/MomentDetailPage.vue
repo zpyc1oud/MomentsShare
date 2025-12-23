@@ -60,24 +60,14 @@
           <h3 class="section-title">评论 ({{ comments.length }})</h3>
           
           <div class="comment-list">
-            <div v-for="comment in comments" :key="comment.id" class="comment-item">
-              <img :src="comment.author?.avatar || '/media/default_avatar.png'" class="avatar avatar--sm" />
-              <div class="comment-body">
-                <div class="comment-header">
-                  <span class="comment-author">{{ comment.author?.nickname }}</span>
-                  <span class="comment-time">{{ formatTime(comment.created_at) }}</span>
-                </div>
-                <p class="comment-content">{{ comment.content }}</p>
-                
-                <!-- 回复 -->
-                <div v-if="comment.replies?.length" class="reply-list">
-                  <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
-                    <span class="reply-author">{{ reply.author?.nickname }}</span>
-                    <span class="reply-content">{{ reply.content }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <CommentItem
+              v-for="comment in comments"
+              :key="comment.id"
+              :comment="comment"
+              :depth="0"
+              :selected-id="replyingTo?.id"
+              @reply="startReply"
+            />
           </div>
           
           <div v-if="comments.length === 0" class="empty-comments">
@@ -88,20 +78,27 @@
       
       <!-- 评论输入框 -->
       <div class="comment-input-bar">
-        <input 
-          v-model="commentText"
-          type="text"
-          class="comment-input"
-          placeholder="写评论..."
-          @keyup.enter="submitComment"
-        />
-        <button 
-          class="send-btn"
-          :disabled="!commentText.trim() || submitting"
-          @click="submitComment"
-        >
-          发送
-        </button>
+        <div v-if="replyingTo" class="replying-hint">
+          <span>回复 @{{ replyingTo.author?.nickname }}</span>
+          <button class="cancel-reply" @click="cancelReply">×</button>
+        </div>
+        <div class="input-row">
+          <input 
+            ref="commentInputRef"
+            v-model="commentText"
+            type="text"
+            class="comment-input"
+            :placeholder="replyingTo ? `回复 ${replyingTo.author?.nickname}...` : '写评论...'"
+            @keyup.enter="submitComment"
+          />
+          <button 
+            class="send-btn"
+            :disabled="!commentText.trim() || submitting"
+            @click="submitComment"
+          >
+            发送
+          </button>
+        </div>
       </div>
     </div>
     
@@ -115,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -124,6 +121,7 @@ import PageLayout from '@/components/layout/PageLayout.vue'
 import Loading from '@/components/common/Loading.vue'
 import VideoPlayer from '@/components/common/VideoPlayer.vue'
 import ImagePreview from '@/components/common/ImagePreview.vue'
+import CommentItem from '@/components/business/CommentItem.vue'
 import { momentsApi } from '@/api/moments'
 import { showToast } from 'vant'
 
@@ -137,6 +135,8 @@ const comments = ref([])
 const loading = ref(true)
 const commentText = ref('')
 const submitting = ref(false)
+const replyingTo = ref(null)
+const commentInputRef = ref(null)
 const showPreview = ref(false)
 const previewIndex = ref(0)
 const likeLoading = ref(false)
@@ -171,23 +171,74 @@ const previewImage = (index) => {
   showPreview.value = true
 }
 
+// 递归查找评论
+const findCommentById = (commentsList, targetId) => {
+  for (const comment of commentsList) {
+    if (comment.id === targetId) {
+      return comment
+    }
+    if (comment.replies?.length) {
+      const found = findCommentById(comment.replies, targetId)
+      if (found) return found
+    }
+  }
+  return null
+}
+
 const submitComment = async () => {
   if (!commentText.value.trim() || submitting.value) return
   
   submitting.value = true
   
   try {
-    const response = await momentsApi.createComment(route.params.id, {
-      content: commentText.value
-    })
+    const data = { content: commentText.value }
     
-    comments.value.unshift(response)
+    // 如果是回复评论，添加parent_id
+    if (replyingTo.value) {
+      data.parent_id = replyingTo.value.id
+    }
+    
+    const response = await momentsApi.createComment(route.params.id, data)
+    
+    if (replyingTo.value) {
+      // 楼中楼回复，递归查找父评论并添加到replies中
+      const parentComment = findCommentById(comments.value, replyingTo.value.id)
+      if (parentComment) {
+        if (!parentComment.replies) {
+          parentComment.replies = []
+        }
+        parentComment.replies.push(response)
+      }
+    } else {
+      // 顶级评论
+      comments.value.unshift(response)
+    }
+    
     commentText.value = ''
+    replyingTo.value = null
   } catch (error) {
     console.error('Submit comment error:', error)
+    showToast({
+      message: error.response?.data?.detail || '评论失败',
+      type: 'fail'
+    })
   } finally {
     submitting.value = false
   }
+}
+
+// 开始回复评论
+const startReply = (comment) => {
+  replyingTo.value = comment
+  // 聚焦输入框
+  nextTick(() => {
+    commentInputRef.value?.focus()
+  })
+}
+
+// 取消回复
+const cancelReply = () => {
+  replyingTo.value = null
 }
 
 // 处理点赞
@@ -353,62 +404,8 @@ onMounted(() => {
 .comment-list {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: $spacing-xs;
   padding-bottom: $spacing-lg;
-}
-
-.comment-item {
-  display: flex;
-  gap: $spacing-sm;
-}
-
-.comment-body {
-  flex: 1;
-}
-
-.comment-header {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  margin-bottom: 4px;
-}
-
-.comment-author {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $text-primary;
-}
-
-.comment-time {
-  font-size: $font-size-xs;
-  color: $text-muted;
-}
-
-.comment-content {
-  font-size: $font-size-sm;
-  line-height: 1.5;
-  color: $text-primary;
-}
-
-.reply-list {
-  margin-top: $spacing-sm;
-  padding: $spacing-sm;
-  background: rgba($lavender, 0.1);
-  border-radius: $radius-sm;
-}
-
-.reply-item {
-  font-size: $font-size-sm;
-  color: $text-secondary;
-  
-  & + & {
-    margin-top: $spacing-xs;
-  }
-}
-
-.reply-author {
-  color: $pink-primary;
-  margin-right: 4px;
 }
 
 .empty-comments {
@@ -425,11 +422,45 @@ onMounted(() => {
   right: 0;
   z-index: 10;
   display: flex;
-  gap: $spacing-sm;
+  flex-direction: column;
+  gap: $spacing-xs;
   padding: $spacing-md;
   background: $glass-bg-heavy;
   backdrop-filter: $glass-blur;
   border-top: $glass-border-light;
+}
+
+.replying-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: rgba($pink-primary, 0.1);
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  color: $pink-primary;
+}
+
+.cancel-reply {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: $text-muted;
+  cursor: pointer;
+  
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.input-row {
+  display: flex;
+  gap: $spacing-sm;
 }
 
 .comment-input {

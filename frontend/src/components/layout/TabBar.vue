@@ -62,21 +62,25 @@ const getBadge = (item) => {
 </script>
 
 <style lang="scss" scoped>
+// 底部安全区域高度(home indicator)
+$safe-area-bottom: 34px;
+
 .tabbar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: $tabbar-height;
+  height: calc($tabbar-height + $safe-area-bottom);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-around;
   background: $glass-bg-heavy;
   backdrop-filter: $glass-blur;
   -webkit-backdrop-filter: $glass-blur;
   border-top: $glass-border-light;
   z-index: $z-tabbar;
-  padding-bottom: 5px;
+  padding-top: 8px;
+  padding-bottom: $safe-area-bottom;
   
   &__item {
     display: flex;

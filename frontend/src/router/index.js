@@ -66,6 +66,12 @@ const routes = [
     component: () => import('@/views/messages/AddFriendPage.vue'),
     meta: { requiresAuth: true, hideTabbar: true }
   },
+  {
+    path: '/chat/:userId',
+    name: 'Chat',
+    component: () => import('@/views/messages/ChatPage.vue'),
+    meta: { requiresAuth: true, hideTabbar: true }
+  },
   // P6: 动态详情
   {
     path: '/moment/:id',
