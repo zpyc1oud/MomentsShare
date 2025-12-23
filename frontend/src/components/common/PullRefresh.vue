@@ -94,8 +94,10 @@ const onTouchEnd = async () => {
 <style lang="scss" scoped>
 .pull-refresh {
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   height: 100%;
+  -webkit-overflow-scrolling: touch;
   
   &__indicator {
     position: absolute;

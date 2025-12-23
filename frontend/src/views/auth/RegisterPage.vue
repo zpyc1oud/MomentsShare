@@ -15,7 +15,7 @@
     
     <!-- 标题 -->
     <div class="register-header">
-      <h1 class="register-title">Create<br/>an account</h1>
+      <h1 class="register-title">创建账号</h1>
     </div>
     
     <!-- 注册表单 - 完全使用 Vant -->
@@ -24,10 +24,10 @@
         <van-field
           v-model="form.nickname"
           name="nickname"
-          placeholder="Full name (昵称)"
+          placeholder="请输入昵称"
           maxlength="30"
           left-icon="user-o"
-          :rules="[{ required: true, message: '请填写昵称' }]"
+          :rules="nicknameRules"
           class="form-field"
         />
         
@@ -38,10 +38,7 @@
           placeholder="手机号"
           maxlength="11"
           left-icon="phone-o"
-          :rules="[
-            { required: true, message: '请填写手机号' },
-            { pattern: /^1\d{10}$/, message: '请输入正确的手机号' }
-          ]"
+          :rules="phoneRules"
           class="form-field"
         />
         
@@ -49,13 +46,10 @@
           v-model="form.password"
           :type="showPassword ? 'text' : 'password'"
           name="password"
-          placeholder="Password (至少6位)"
+          placeholder="请输入密码（6-20位）"
           left-icon="lock"
           :right-icon="showPassword ? 'eye-o' : 'closed-eye'"
-          :rules="[
-            { required: true, message: '请填写密码' },
-            { validator: (val) => val.length >= 6, message: '密码至少6位' }
-          ]"
+          :rules="passwordRules"
           class="form-field"
           @click-right-icon="showPassword = !showPassword"
         />
@@ -64,13 +58,10 @@
           v-model="form.confirmPassword"
           :type="showConfirmPassword ? 'text' : 'password'"
           name="confirmPassword"
-          placeholder="Confirm Password"
+          placeholder="请确认密码"
           left-icon="shield-o"
           :right-icon="showConfirmPassword ? 'eye-o' : 'closed-eye'"
-          :rules="[
-            { required: true, message: '请确认密码' },
-            { validator: (val) => val === form.password, message: '两次密码输入不一致' }
-          ]"
+          :rules="confirmPasswordRules"
           class="form-field"
           @click-right-icon="showConfirmPassword = !showConfirmPassword"
         />
@@ -88,14 +79,14 @@
           loading-text="注册中..."
           class="submit-btn"
         >
-          Sign up
+          注 册
         </van-button>
       </div>
     </van-form>
     
     <!-- 社交注册 -->
     <div class="social-login">
-      <van-divider class="social-divider">or sign up with</van-divider>
+      <van-divider class="social-divider">或通过以下方式注册</van-divider>
       <div class="social-icons">
         <van-button round icon="wechat" class="social-icon-btn social-icon-btn--wechat" />
         <van-button round icon="alipay" class="social-icon-btn social-icon-btn--alipay" />
@@ -106,15 +97,15 @@
     
     <!-- 底部链接 -->
     <div class="register-footer">
-      <span>Already have an account?</span>
-      <router-link to="/login" class="register-footer__link">Log in</router-link>
+      <span>已有账号？</span>
+      <router-link to="/login" class="register-footer__link">立即登录</router-link>
     </div>
     
     <!-- 用户协议 -->
     <p class="agreement-text">
-      By signing up, you agree to the
-      <a href="#" class="agreement-link">User Agreement</a> & 
-      <a href="#" class="agreement-link">Privacy Policy</a>
+      注册即表示您同意
+      <a href="#" class="agreement-link">《用户协议》</a>和
+      <a href="#" class="agreement-link">《隐私政策》</a>
     </p>
   </div>
 </template>
@@ -136,6 +127,47 @@ const form = reactive({
   confirmPassword: ''
 })
 
+// 表单校验规则
+const nicknameRules = [
+  { required: true, message: '请填写昵称' },
+  {
+    validator: (val) => {
+      const value = (val || '').trim()
+      return value.length > 0 && value.length <= 30
+    },
+    message: '昵称长度需在 1-30 个字符内'
+  }
+]
+
+const phoneRules = [
+  { required: true, message: '请填写手机号' },
+  {
+    validator: (val) => /^1\d{10}$/.test((val || '').trim()),
+    message: '请输入正确的手机号'
+  }
+]
+
+const passwordRules = [
+  { required: true, message: '请填写密码' },
+  {
+    validator: (val) => {
+      const value = (val || '').trim()
+      if (value.length < 6) return false
+      if (value.length > 20) return false
+      return true
+    },
+    message: '密码长度需为 6-20 位'
+  }
+]
+
+const confirmPasswordRules = [
+  { required: true, message: '请确认密码' },
+  {
+    validator: (val) => (val || '').trim() === (form.password || '').trim(),
+    message: '两次密码输入不一致'
+  }
+]
+
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const loading = ref(false)
@@ -145,14 +177,14 @@ const handleRegister = async () => {
   errorMessage.value = ''
   loading.value = true
   
-  // 使用昵称作为用户名（如果未单独设置）
-  const username = form.username || form.phone
+  // 使用手机号作为用户名（如果未单独设置）
+  const username = (form.username || form.phone || '').trim()
   
   const result = await authStore.register({
-    phone: form.phone,
-    username: username,
-    nickname: form.nickname,
-    password: form.password
+    phone: form.phone.trim(),
+    username,
+    nickname: form.nickname.trim(),
+    password: form.password.trim()
   })
   
   loading.value = false

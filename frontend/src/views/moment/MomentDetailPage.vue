@@ -8,7 +8,7 @@
       <template v-else-if="moment">
         <!-- 作者信息 -->
         <div class="author-section">
-          <img :src="moment.author?.avatar || '/default-avatar.png'" class="avatar avatar--lg" />
+          <img :src="moment.author?.avatar || '/media/default_avatar.png'" class="avatar avatar--lg" />
           <div class="author-info">
             <span class="author-name">{{ moment.author?.nickname }}</span>
             <span class="author-time">{{ formatTime(moment.created_at) }}</span>
@@ -61,7 +61,7 @@
           
           <div class="comment-list">
             <div v-for="comment in comments" :key="comment.id" class="comment-item">
-              <img :src="comment.author?.avatar || '/default-avatar.png'" class="avatar avatar--sm" />
+              <img :src="comment.author?.avatar || '/media/default_avatar.png'" class="avatar avatar--sm" />
               <div class="comment-body">
                 <div class="comment-header">
                   <span class="comment-author">{{ comment.author?.nickname }}</span>

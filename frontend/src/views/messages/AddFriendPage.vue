@@ -30,7 +30,7 @@
             :key="user.id"
             class="user-item"
           >
-            <img :src="user.avatar || '/default-avatar.png'" class="avatar" />
+            <img :src="user.avatar || '/media/default_avatar.png'" class="avatar" />
             <div class="user-info">
               <span class="user-name">{{ user.nickname }}</span>
               <span class="user-phone">{{ user.phone }}</span>

@@ -44,18 +44,40 @@ request.interceptors.response.use(
           })
           
           const newToken = response.data.access
-          localStorage.setItem('access_token', newToken)
+          // 同步更新 Pinia 中的 token 状态，保持与 localStorage 一致
+          try {
+            const { useAuthStore } = await import('@/stores/auth')
+            const authStore = useAuthStore()
+            authStore.setTokens(newToken, refreshToken)
+          } catch (e) {
+            // 如果 Pinia 尚未初始化，则至少保证 localStorage 中的 token 是最新的
+            localStorage.setItem('access_token', newToken)
+          }
+
           originalRequest.headers.Authorization = `Bearer ${newToken}`
           
           return request(originalRequest)
         } catch (refreshError) {
-          // 刷新失败，清除 token 并跳转登录
-          localStorage.removeItem('access_token')
-          localStorage.removeItem('refresh_token')
-          router.push({ name: 'Login' })
+          // 刷新失败，清除登录状态并跳转登录页
+          try {
+            const { useAuthStore } = await import('@/stores/auth')
+            const authStore = useAuthStore()
+            authStore.clearTokens()
+          } catch (e) {
+            localStorage.removeItem('access_token')
+            localStorage.removeItem('refresh_token')
+          }
+
+          router.push({
+            name: 'Login',
+            query: { redirect: router.currentRoute.value.fullPath, message: '登录已过期，请重新登录' }
+          })
         }
       } else {
-        router.push({ name: 'Login' })
+        router.push({
+          name: 'Login',
+          query: { redirect: router.currentRoute.value.fullPath, message: '请先登录' }
+        })
       }
     }
     

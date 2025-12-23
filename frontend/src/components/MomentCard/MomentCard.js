@@ -25,7 +25,7 @@ function MomentCard({ moment }) {
         <div style={cardStyles.card}>
             {/* 头部：用户信息 */}
             <div style={cardStyles.header}>
-                <img src={moment.user.avatar || '/default-avatar.png'} alt="Avatar" style={cardStyles.avatar} />
+                <img src={moment.user.avatar || '/media/default_avatar.png'} alt="Avatar" style={cardStyles.avatar} />
                 <span style={cardStyles.username}>{moment.user.username}</span>
                 <span style={cardStyles.date}>{moment.created_at.split('T')[0]}</span>
             </div>

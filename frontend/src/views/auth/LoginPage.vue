@@ -26,10 +26,7 @@
           placeholder="请输入手机号"
           maxlength="11"
           left-icon="phone-o"
-          :rules="[
-            { required: true, message: '请填写手机号' },
-            { pattern: /^1\d{10}$/, message: '请输入正确的手机号' }
-          ]"
+          :rules="phoneRules"
           class="form-field"
         />
         
@@ -37,10 +34,10 @@
           v-model="form.password"
           :type="showPassword ? 'text' : 'password'"
           name="password"
-          placeholder="请输入密码"
+          placeholder="请输入密码（6-20 位）"
           left-icon="lock"
           :right-icon="showPassword ? 'eye-o' : 'closed-eye'"
-          :rules="[{ required: true, message: '请填写密码' }]"
+          :rules="passwordRules"
           class="form-field"
           @click-right-icon="showPassword = !showPassword"
         />
@@ -65,7 +62,7 @@
     
     <!-- 社交登录 -->
     <div class="social-login">
-      <van-divider class="social-divider">or sign in with</van-divider>
+      <van-divider class="social-divider">或通过以下方式登录</van-divider>
       <div class="social-icons">
         <van-button round icon="wechat" class="social-icon-btn social-icon-btn--wechat" />
         <van-button round icon="alipay" class="social-icon-btn social-icon-btn--alipay" />
@@ -82,15 +79,15 @@
     
     <!-- 用户协议 -->
     <p class="agreement-text">
-      By signing up, you agree to the
-      <a href="#" class="agreement-link">User Agreement</a> & 
-      <a href="#" class="agreement-link">Privacy Policy</a>
+      登录即表示您同意
+      <a href="#" class="agreement-link">《用户协议》</a>和
+      <a href="#" class="agreement-link">《隐私政策》</a>
     </p>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { showToast } from 'vant'
@@ -103,6 +100,28 @@ const form = reactive({
   phone: '',
   password: ''
 })
+
+// 表单校验规则（与注册页保持一致风格）
+const phoneRules = [
+  { required: true, message: '请填写手机号' },
+  {
+    validator: (val) => /^1\d{10}$/.test((val || '').trim()),
+    message: '请输入正确的手机号'
+  }
+]
+
+const passwordRules = [
+  { required: true, message: '请填写密码' },
+  {
+    validator: (val) => {
+      const value = (val || '').trim()
+      if (value.length < 6) return false
+      if (value.length > 20) return false
+      return true
+    },
+    message: '密码长度需为 6-20 位'
+  }
+]
 
 const showPassword = ref(false)
 const loading = ref(false)
@@ -117,6 +136,9 @@ const handleLogin = async () => {
   loading.value = false
   
   if (result.success) {
+    // 登录成功后主动拉取当前用户完整信息，填充到全局状态
+    await authStore.fetchUserInfo()
+
     showToast({
       message: '登录成功',
       type: 'success'
@@ -127,6 +149,17 @@ const handleLogin = async () => {
     errorMessage.value = result.message
   }
 }
+
+// 如果从注册页跳转过来，显示一条成功提示
+onMounted(() => {
+  const msg = route.query.message
+  if (msg) {
+    showToast({
+      message: String(msg),
+      type: 'success'
+    })
+  }
+})
 </script>
 
 <style lang="scss" scoped>

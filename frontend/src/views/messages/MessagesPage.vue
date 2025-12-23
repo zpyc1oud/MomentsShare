@@ -2,7 +2,6 @@
   <PageLayout title="消息" :show-back="false">
     <template #nav-right>
       <button class="nav-btn" @click="$router.push('/add-friend')">
-        <span v-if="pendingCount" class="badge">{{ pendingCount }}</span>
         <van-icon name="friends-o" />
       </button>
     </template>

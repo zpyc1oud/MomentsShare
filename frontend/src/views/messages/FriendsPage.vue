@@ -54,7 +54,7 @@
             class="friend-item"
             @click="goToProfile(friend.id)"
           >
-            <img :src="friend.avatar || '/default-avatar.png'" class="avatar" />
+            <img :src="normalizeAvatar(friend.avatar)" class="avatar" />
             <div class="friend-info">
               <span class="friend-name">{{ friend.nickname }}</span>
               <span class="friend-username">@{{ friend.username }}</span>
@@ -156,6 +156,21 @@ const handleClear = () => {
 const handleCancelSearch = () => {
   showSearch.value = false
   searchKeyword.value = ''
+}
+
+// 头像地址兜底
+const normalizeAvatar = (url) => {
+  if (!url) return '/media/default_avatar.png'
+
+  let finalUrl = url
+  if (finalUrl.includes('host.docker.internal')) {
+    finalUrl = finalUrl.replace('host.docker.internal', 'localhost')
+  }
+
+  if (finalUrl.startsWith('http')) return finalUrl
+
+  const origin = import.meta.env.VITE_API_ORIGIN || 'http://localhost:8000'
+  return `${origin}${finalUrl}`
 }
 
 const showDeleteConfirm = (friend) => {

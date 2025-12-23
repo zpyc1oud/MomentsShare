@@ -52,6 +52,11 @@ export const momentsApi = {
     return request.get('/moments/my/', { params: { page } })
   },
 
+  // 获取指定用户的动态列表
+  getUserMoments(userId, page = 1) {
+    return request.get(`/moments/user/${userId}/`, { params: { page } })
+  },
+
   // 搜索动态
   search(params) {
     return request.get('/moments/search/', { params })

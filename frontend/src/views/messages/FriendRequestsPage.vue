@@ -12,7 +12,7 @@
             :key="request.id"
             class="request-item"
           >
-            <img :src="request.from_user?.avatar || '/default-avatar.png'" class="avatar" />
+            <img :src="normalizeAvatar(request.from_user?.avatar)" class="avatar" />
             <div class="request-info">
               <span class="request-name">{{ request.from_user?.nickname }}</span>
               <span class="request-time">{{ formatTime(request.created_at) }}</span>
@@ -51,6 +51,7 @@ import { ref, onMounted } from 'vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
+import { showToast } from 'vant'
 import PageLayout from '@/components/layout/PageLayout.vue'
 import Loading from '@/components/common/Loading.vue'
 import { friendsApi } from '@/api/friends'
@@ -68,6 +69,10 @@ const fetchRequests = async () => {
     requests.value = response.results || response
   } catch (error) {
     console.error('Fetch requests error:', error)
+    showToast({
+      message: error.response?.data?.detail || '加载好友申请失败',
+      type: 'fail'
+    })
   } finally {
     loading.value = false
   }
@@ -75,13 +80,22 @@ const fetchRequests = async () => {
 
 const handleRespond = async (requestId, action) => {
   responding.value = requestId
-  
+
   try {
     await friendsApi.respondRequest(requestId, action)
     // 移除已处理的申请
     requests.value = requests.value.filter(r => r.id !== requestId)
+
+    showToast({
+      message: action === 'accept' ? '已同意好友申请' : '已拒绝好友申请',
+      type: 'success'
+    })
   } catch (error) {
     console.error('Respond error:', error)
+    showToast({
+      message: error.response?.data?.detail || '操作失败，请稍后重试',
+      type: 'fail'
+    })
   } finally {
     responding.value = null
   }
@@ -89,6 +103,22 @@ const handleRespond = async (requestId, action) => {
 
 const formatTime = (time) => {
   return dayjs(time).fromNow()
+}
+
+// 头像地址兜底，与首页/个人中心保持一致
+const normalizeAvatar = (url) => {
+  if (!url) return '/media/default_avatar.png'
+
+  let finalUrl = url
+
+  if (finalUrl.includes('host.docker.internal')) {
+    finalUrl = finalUrl.replace('host.docker.internal', 'localhost')
+  }
+
+  if (finalUrl.startsWith('http')) return finalUrl
+
+  const origin = import.meta.env.VITE_API_ORIGIN || 'http://localhost:8000'
+  return `${origin}${finalUrl}`
 }
 
 onMounted(() => {

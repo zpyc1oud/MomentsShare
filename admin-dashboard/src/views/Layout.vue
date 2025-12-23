@@ -4,7 +4,7 @@
     <el-aside :width="sidebarWidth" class="sidebar">
       <div class="sidebar-header">
         <div class="logo">
-          <div class="logo-img">📊</div>
+          <img src="/src/assets/icon.png" alt="Logo" class="logo-img" />
           <span v-show="!isCollapse" class="logo-text">MomentsShare</span>
         </div>
       </div>
@@ -262,13 +262,12 @@ const handleLogout = async () => {
 }
 
 .logo-img {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   margin-right: 12px;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
 }
 
 .logo-text {
