@@ -155,7 +155,7 @@ onMounted(async () => {
 // 1) 后端可能返回相对路径，需拼上域名
 // 2) 后端在容器中返回 host.docker.internal，宿主浏览器访问不到时，替换为 localhost
 const normalizeAvatar = (url) => {
-  if (!url) return '/default-avatar.png'
+  if (!url) return '/media/default_avatar.png'
 
   let finalUrl = url
 

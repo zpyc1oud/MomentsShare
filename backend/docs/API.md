@@ -471,7 +471,43 @@ labels: ["视频", "分享"]
 
 ---
 
-### 3.4 搜索动态
+### 3.4 我的动态列表
+
+**GET** `/api/v1/moments/my/`
+
+**权限**: 需要认证
+
+**查询参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| page | integer | 页码（默认1） |
+
+**成功响应** (200):
+```json
+{
+  "count": 20,
+  "next": "http://api/v1/moments/my/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "author": {...},
+      "content": "我的动态内容",
+      "type": "IMAGE",
+      ...
+    }
+  ]
+}
+```
+
+**说明**:
+- 只返回当前用户发布的动态
+- 不返回已删除的动态
+- 按创建时间倒序排列
+
+---
+
+### 3.5 搜索动态
 
 **GET** `/api/v1/moments/search/`
 
@@ -480,8 +516,8 @@ labels: ["视频", "分享"]
 **查询参数**:
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| keyword | string | 关键词（模糊搜索内容） |
-| label | string | 标签名称 |
+| keyword | string | 关键词（支持中文和拼音匹配） |
+| label | string | 标签名称（支持拼音匹配） |
 | start_date | string | 开始日期 (ISO格式: 2024-01-01) |
 | end_date | string | 结束日期 (ISO格式: 2024-01-31) |
 | page | integer | 页码（默认1） |
@@ -489,6 +525,9 @@ labels: ["视频", "分享"]
 **请求示例**:
 ```
 GET /api/v1/moments/search/?keyword=天气&label=日常&start_date=2024-01-01&end_date=2024-01-31
+# 拼音搜索示例
+GET /api/v1/moments/search/?keyword=tq
+GET /api/v1/moments/search/?keyword=tianqi
 ```
 
 **成功响应** (200):
@@ -508,6 +547,70 @@ GET /api/v1/moments/search/?keyword=天气&label=日常&start_date=2024-01-01&en
   ]
 }
 ```
+
+**说明**:
+- 支持中文直接匹配
+- 支持拼音全拼匹配（如 `tianqi` 匹配 "天气"）
+- 支持拼音首字母匹配（如 `tq` 匹配 "天气"）
+
+---
+
+### 3.6 搜索建议
+
+**GET** `/api/v1/moments/search/suggestions/`
+
+**权限**: 需要认证
+
+**查询参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| q | string | 搜索关键词（必填） |
+| limit | integer | 返回建议数量限制（默认10） |
+
+**成功响应** (200):
+```json
+{
+  "suggestions": [
+    {
+      "text": "...今天天气真好...",
+      "keyword": "tq",
+      "moment_id": 1
+    }
+  ],
+  "tags": [
+    {"id": 1, "name": "天气"},
+    {"id": 2, "name": "日常"}
+  ]
+}
+```
+
+**说明**:
+- 返回匹配的动态内容片段
+- 返回匹配的标签列表
+- 支持拼音匹配
+
+---
+
+### 3.7 热门搜索
+
+**GET** `/api/v1/moments/search/hot/`
+
+**权限**: 需要认证
+
+**成功响应** (200):
+```json
+{
+  "tags": [
+    {"id": 1, "name": "美食", "count": 50},
+    {"id": 2, "name": "旅行", "count": 35},
+    {"id": 3, "name": "日常", "count": 28}
+  ]
+}
+```
+
+**说明**:
+- 返回使用频率最高的标签（最多10个）
+- 包含每个标签的使用次数
 
 ---
 
@@ -593,7 +696,105 @@ GET /api/v1/moments/search/?keyword=天气&label=日常&start_date=2024-01-01&en
 
 ---
 
-### 4.3 删除好友
+### 4.3 获取好友列表
+
+**GET** `/api/v1/friends/`
+
+**权限**: 需要认证
+
+**查询参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| page | integer | 页码（默认1） |
+
+**成功响应** (200):
+```json
+{
+  "count": 15,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 2,
+      "phone": "13812345678",
+      "username": "friend1",
+      "nickname": "好友1",
+      "avatar": "/media/avatars/xxx.jpg"
+    }
+  ]
+}
+```
+
+---
+
+### 4.4 获取待处理好友申请
+
+**GET** `/api/v1/friends/pending/`
+
+**权限**: 需要认证
+
+**成功响应** (200):
+```json
+{
+  "count": 3,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "from_user": 2,
+      "to_user": 1,
+      "status": "PENDING",
+      "created_at": "2024-01-01T12:00:00+08:00"
+    }
+  ]
+}
+```
+
+**说明**:
+- 返回当前用户收到的待处理好友申请
+- 按创建时间倒序排列
+
+---
+
+### 4.5 搜索用户
+
+**GET** `/api/v1/friends/search/`
+
+**权限**: 需要认证
+
+**查询参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| keyword | string | 搜索关键词（昵称或手机号） |
+| page | integer | 页码（默认1） |
+
+**成功响应** (200):
+```json
+{
+  "count": 5,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 3,
+      "phone": "13899999999",
+      "username": "newuser",
+      "nickname": "新用户",
+      "avatar": "/media/avatars/xxx.jpg"
+    }
+  ]
+}
+```
+
+**说明**:
+- 用于添加好友前搜索用户
+- 不返回当前用户自己
+- 支持按昵称或手机号模糊搜索
+
+---
+
+### 4.6 删除好友
 
 **DELETE** `/api/v1/friends/{user_id}/`
 
@@ -725,6 +926,105 @@ GET /api/v1/moments/search/?keyword=天气&label=日常&start_date=2024-01-01&en
 ```json
 {
   "detail": "动态不存在或已被删除"
+}
+```
+
+---
+
+### 5.3 点赞/取消点赞
+
+**POST** `/api/v1/moments/{moment_id}/like/`
+
+**权限**: 需要认证
+
+**路径参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| moment_id | integer | 动态 ID |
+
+**成功响应 - 点赞** (201):
+```json
+{
+  "detail": "点赞成功",
+  "liked": true,
+  "likes_count": 10,
+  "like": {
+    "id": 1,
+    "moment": 1,
+    "user": 1,
+    "created_at": "2024-01-01T12:00:00+08:00"
+  }
+}
+```
+
+**成功响应 - 取消点赞** (200):
+```json
+{
+  "detail": "取消点赞成功",
+  "liked": false,
+  "likes_count": 9
+}
+```
+
+**说明**:
+- 如果用户未点赞则点赞，已点赞则取消点赞
+- 返回当前点赞状态和点赞总数
+
+---
+
+### 5.4 打分/评分
+
+**POST** `/api/v1/interactions/rate/`
+
+**权限**: 需要认证
+
+**请求体**:
+```json
+{
+  "moment_id": 1,
+  "score": 5
+}
+```
+
+**字段说明**:
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| moment_id | integer | 是 | 动态 ID |
+| score | integer | 是 | 评分 (1-5) |
+
+**成功响应** (201):
+```json
+{
+  "id": 1,
+  "moment": 1,
+  "user": 1,
+  "score": 5,
+  "created_at": "2024-01-01T12:00:00+08:00"
+}
+```
+
+**说明**:
+- 如果用户已打分，则更新分数
+- 分数范围 1-5
+
+---
+
+### 5.5 获取平均分
+
+**GET** `/api/v1/interactions/avg_score/`
+
+**权限**: 公开
+
+**查询参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| moment_id | integer | 动态 ID（必填） |
+
+**成功响应** (200):
+```json
+{
+  "moment_id": 1,
+  "avg_score": 4.5
 }
 ```
 
@@ -969,21 +1269,170 @@ GET /api/v1/admin/contents/?user_id=1&page=1
 
 **权限**: 管理员
 
+**查询参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| days | integer | 统计天数（默认7） |
+
 **成功响应** (200):
 ```json
 {
-  "dau": 150,
-  "daily_new_users": 20,
-  "daily_posts": 85
+  "daily_stats": [
+    {
+      "date": "2024-01-01",
+      "dau": 150,
+      "daily_new_users": 20,
+      "daily_posts": 85
+    },
+    {
+      "date": "2024-01-02",
+      "dau": 165,
+      "daily_new_users": 15,
+      "daily_posts": 92
+    }
+  ],
+  "content_distribution": [
+    {"type": "图片动态", "count": 500},
+    {"type": "视频动态", "count": 120}
+  ]
 }
 ```
 
 **字段说明**:
 | 字段 | 说明 |
 |------|------|
-| dau | 日活跃用户数（当日发帖或评论的用户） |
-| daily_new_users | 当日新注册用户数 |
-| daily_posts | 当日发帖数（不含已删除） |
+| daily_stats | 每日统计数据数组 |
+| daily_stats[].date | 日期 |
+| daily_stats[].dau | 日活跃用户数（当日发帖或评论的用户） |
+| daily_stats[].daily_new_users | 当日新注册用户数 |
+| daily_stats[].daily_posts | 当日发帖数（不含已删除） |
+| content_distribution | 内容类型分布统计 |
+
+---
+
+### 7.5 用户列表
+
+**GET** `/api/v1/admin/users/`
+
+**权限**: 管理员
+
+**查询参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| search | string | 搜索关键词（手机号或昵称） |
+| page | integer | 页码（默认1） |
+
+**成功响应** (200):
+```json
+{
+  "count": 100,
+  "next": "http://api/v1/admin/users/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "phone": "13812345678",
+      "username": "testuser",
+      "nickname": "测试用户",
+      "avatar": "/media/avatars/xxx.jpg",
+      "is_active": true,
+      "is_staff": false,
+      "created_at": "2024-01-01T12:00:00+08:00"
+    }
+  ]
+}
+```
+
+---
+
+### 7.6 封禁/解封用户
+
+**POST** `/api/v1/admin/users/{pk}/status/`
+
+**权限**: 管理员
+
+**路径参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| pk | integer | 用户 ID |
+
+**成功响应** (200):
+```json
+{
+  "detail": "用户已封禁",
+  "is_active": false
+}
+```
+
+或
+
+```json
+{
+  "detail": "用户已解封",
+  "is_active": true
+}
+```
+
+**说明**:
+- 切换用户的 is_active 状态
+- 封禁后用户无法登录
+
+---
+
+### 7.7 评论列表
+
+**GET** `/api/v1/admin/comments/`
+
+**权限**: 管理员
+
+**查询参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| user_id | integer | 按用户ID过滤 |
+| moment_id | integer | 按动态ID过滤 |
+| keyword | string | 搜索评论内容 |
+| page | integer | 页码（默认1） |
+
+**成功响应** (200):
+```json
+{
+  "count": 50,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "moment": 1,
+      "author": {
+        "id": 1,
+        "nickname": "用户1"
+      },
+      "content": "评论内容",
+      "parent": null,
+      "created_at": "2024-01-01T12:00:00+08:00",
+      "is_deleted": false
+    }
+  ]
+}
+```
+
+---
+
+### 7.8 删除评论
+
+**DELETE** `/api/v1/admin/comments/{pk}/`
+
+**权限**: 管理员
+
+**路径参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| pk | integer | 评论 ID |
+
+**成功响应** (204): 无内容
+
+**说明**:
+- 物理删除评论（非软删除）
 
 ---
 
@@ -1003,14 +1452,23 @@ GET /api/v1/admin/contents/?user_id=1&page=1
 | POST | `/api/v1/moments/` | 发布动态 | 认证 |
 | GET | `/api/v1/moments/{id}/` | 动态详情 | 认证 |
 | GET | `/api/v1/moments/feed/` | 好友动态流 | 认证 |
+| GET | `/api/v1/moments/my/` | 我的动态列表 | 认证 |
 | GET | `/api/v1/moments/search/` | 搜索动态 | 认证 |
+| GET | `/api/v1/moments/search/suggestions/` | 搜索建议 | 认证 |
+| GET | `/api/v1/moments/search/hot/` | 热门搜索 | 认证 |
 | **好友** ||||
+| GET | `/api/v1/friends/` | 好友列表 | 认证 |
 | POST | `/api/v1/friends/request/` | 发起好友申请 | 认证 |
 | POST | `/api/v1/friends/respond/` | 响应好友申请 | 认证 |
+| GET | `/api/v1/friends/pending/` | 待处理好友申请 | 认证 |
+| GET | `/api/v1/friends/search/` | 搜索用户 | 认证 |
 | DELETE | `/api/v1/friends/{user_id}/` | 删除好友 | 认证 |
-| **评论** ||||
+| **互动** ||||
 | GET | `/api/v1/moments/{moment_id}/comments/` | 评论列表 | 认证 |
 | POST | `/api/v1/moments/{moment_id}/comments/` | 发布评论 | 认证 |
+| POST | `/api/v1/moments/{moment_id}/like/` | 点赞/取消点赞 | 认证 |
+| POST | `/api/v1/interactions/rate/` | 打分评分 | 认证 |
+| GET | `/api/v1/interactions/avg_score/` | 获取平均分 | 公开 |
 | **AI** ||||
 | POST | `/api/v1/ai/polish/` | 文案润色 | 认证 |
 | POST | `/api/v1/ai/recommend-tags/` | 标签推荐 | 认证 |
@@ -1018,6 +1476,10 @@ GET /api/v1/admin/contents/?user_id=1&page=1
 | POST | `/api/v1/admin/auth/login/` | 管理员登录 | 公开 |
 | GET | `/api/v1/admin/contents/` | 内容列表 | 管理员 |
 | DELETE | `/api/v1/admin/contents/{pk}/` | 下架内容 | 管理员 |
+| GET | `/api/v1/admin/users/` | 用户列表 | 管理员 |
+| POST | `/api/v1/admin/users/{pk}/status/` | 封禁/解封用户 | 管理员 |
+| GET | `/api/v1/admin/comments/` | 评论列表 | 管理员 |
+| DELETE | `/api/v1/admin/comments/{pk}/` | 删除评论 | 管理员 |
 | GET | `/api/v1/admin/stats/` | 统计数据 | 管理员 |
 
 ---

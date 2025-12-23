@@ -107,7 +107,7 @@ const formatTime = (time) => {
 
 // 头像地址兜底，与首页/个人中心保持一致
 const normalizeAvatar = (url) => {
-  if (!url) return '/default-avatar.png'
+  if (!url) return '/media/default_avatar.png'
 
   let finalUrl = url
 

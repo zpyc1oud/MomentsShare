@@ -25,6 +25,11 @@ RUN pip install --no-cache-dir -r requirements.txt -i https://mirrors.aliyun.com
 # 复制项目代码
 COPY . .
 
+RUN mkdir -p /app/locale
+
+# 复制默认头像到临时位置（volume 挂载后会覆盖 /app/media）
+RUN mkdir -p /app/defaults && cp /app/media/default_avatar.png /app/defaults/
+
 # 暴露端口
 EXPOSE 8000
 

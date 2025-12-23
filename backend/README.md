@@ -193,10 +193,9 @@ services:
 
 ## 📋 详细文档
 
-- [API 接口文档](docs/API.md)
-- [数据模型文档](docs/MODELS.md)
-- [部署指南](docs/DEPLOYMENT.md)
-- [项目概述](docs/README.md)
+- [API 接口文档](docs/API.md) - 完整的 RESTful API 接口说明
+- [数据模型文档](docs/MODELS.md) - 数据库模型设计与 ER 图
+- [部署指南](docs/DEPLOYMENT.md) - 开发/生产环境部署配置
 
 ## 👥 开发分工
 

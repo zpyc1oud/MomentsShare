@@ -62,7 +62,7 @@
     
     <!-- 社交登录 -->
     <div class="social-login">
-      <van-divider class="social-divider">or sign in with</van-divider>
+      <van-divider class="social-divider">或通过以下方式登录</van-divider>
       <div class="social-icons">
         <van-button round icon="wechat" class="social-icon-btn social-icon-btn--wechat" />
         <van-button round icon="alipay" class="social-icon-btn social-icon-btn--alipay" />
@@ -79,9 +79,9 @@
     
     <!-- 用户协议 -->
     <p class="agreement-text">
-      By signing up, you agree to the
-      <a href="#" class="agreement-link">User Agreement</a> & 
-      <a href="#" class="agreement-link">Privacy Policy</a>
+      登录即表示您同意
+      <a href="#" class="agreement-link">《用户协议》</a>和
+      <a href="#" class="agreement-link">《隐私政策》</a>
     </p>
   </div>
 </template>

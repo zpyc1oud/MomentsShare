@@ -13,6 +13,8 @@
 5. [图片模型 (Image)](#5-图片模型-image)
 6. [好友关系模型 (Friendship)](#6-好友关系模型-friendship)
 7. [评论模型 (Comment)](#7-评论模型-comment)
+8. [点赞模型 (Like)](#8-点赞模型-like)
+9. [评分模型 (Rating)](#9-评分模型-rating)
 
 ---
 
@@ -319,6 +321,114 @@ Comment.objects.filter(parent_id=1, is_deleted=False)
 
 ---
 
+## 8. 点赞模型 (Like)
+
+**位置**: `interactions/models.py`
+
+**说明**: 存储用户对动态的点赞记录。
+
+### 字段定义
+
+| 字段名 | 类型 | 约束 | 说明 |
+|--------|------|------|------|
+| `id` | BigAutoField | PK, Auto | 主键 |
+| `moment` | ForeignKey(Moment) | Required | 所属动态 |
+| `user` | ForeignKey(User) | Required | 点赞用户 |
+| `created_at` | DateTimeField | Auto | 点赞时间 |
+
+### 约束
+
+```python
+class Meta:
+    unique_together = ("moment", "user")  # 联合唯一，每个用户只能点赞一次
+    ordering = ["-created_at"]  # 按时间倒序
+```
+
+### 模型关系
+
+```
+Like
+ ├── moment → Moment
+ └── user → User
+```
+
+### 业务规则
+
+1. 每个用户对每个动态只能点赞一次
+2. 再次点赞则取消点赞
+3. 点赞记录不可修改，只能创建或删除
+
+### 查询示例
+
+```python
+# 检查用户是否点赞
+Like.objects.filter(moment_id=1, user_id=1).exists()
+
+# 获取动态的点赞数
+Like.objects.filter(moment_id=1).count()
+
+# 获取用户点赞的所有动态
+Like.objects.filter(user_id=1).values_list('moment_id', flat=True)
+```
+
+---
+
+## 9. 评分模型 (Rating)
+
+**位置**: `interactions/models.py`
+
+**说明**: 存储用户对动态的评分记录（打星）。
+
+### 字段定义
+
+| 字段名 | 类型 | 约束 | 说明 |
+|--------|------|------|------|
+| `id` | BigAutoField | PK, Auto | 主键 |
+| `moment` | ForeignKey(Moment) | Required | 所属动态 |
+| `user` | ForeignKey(User) | Required | 评分用户 |
+| `score` | PositiveSmallIntegerField | Default=5 | 评分 (1-5) |
+| `created_at` | DateTimeField | Auto | 评分时间 |
+
+### 约束
+
+```python
+class Meta:
+    unique_together = ("moment", "user")  # 联合唯一，每个用户只能评分一次
+    ordering = ["-created_at"]  # 按时间倒序
+```
+
+### 模型关系
+
+```
+Rating
+ ├── moment → Moment
+ └── user → User
+```
+
+### 业务规则
+
+1. 每个用户对每个动态只能评分一次
+2. 分数范围为 1-5 星
+3. 如果用户已评分，再次评分则更新分数
+4. 默认分数为 5 星
+
+### 查询示例
+
+```python
+from django.db.models import Avg
+
+# 获取动态的平均分
+Rating.objects.filter(moment_id=1).aggregate(Avg('score'))['score__avg']
+
+# 获取用户的评分记录
+Rating.objects.filter(moment_id=1, user_id=1).first()
+
+# 获取动态的评分数量
+Rating.objects.filter(moment_id=1).count()
+```
+
+---
+
 ## 📊 ER 图 (实体关系图)
 
 ```
@@ -356,13 +466,30 @@ Comment.objects.filter(parent_id=1, is_deleted=False)
        │
        │ 1:N             ┌──────────────┐
        │                 │   Comment    │
+       ├────────────────►├──────────────┤
+       │                 │ moment_id    │
+       │                 │ author_id    │
+       │                 │ content      │
+       │                 │ parent_id    │──┐ (自引用)
+       │                 │ created_at   │◄─┘
+       │                 │ is_deleted   │
+       │                 └──────────────┘
+       │
+       │ 1:N             ┌──────────────┐
+       │                 │     Like     │
+       ├────────────────►├──────────────┤
+       │                 │ moment_id    │
+       │                 │ user_id      │
+       │                 │ created_at   │
+       │                 └──────────────┘
+       │
+       │ 1:N             ┌──────────────┐
+       │                 │    Rating    │
        └────────────────►├──────────────┤
                          │ moment_id    │
-                         │ author_id    │
-                         │ content      │
-                         │ parent_id    │──┐ (自引用)
-                         │ created_at   │◄─┘
-                         │ is_deleted   │
+                         │ user_id      │
+                         │ score        │
+                         │ created_at   │
                          └──────────────┘
 ```
 
@@ -403,6 +530,20 @@ CREATE INDEX friends_friendship_to_status ON friends_friendship(to_user_id, stat
 -- 建议添加的索引
 CREATE INDEX interactions_comment_moment_parent ON interactions_comment(moment_id, parent_id, is_deleted);
 CREATE INDEX interactions_comment_author ON interactions_comment(author_id);
+```
+
+### 点赞表 (interactions_like)
+
+```sql
+-- 已有唯一索引
+CREATE UNIQUE INDEX interactions_like_moment_user ON interactions_like(moment_id, user_id);
+```
+
+### 评分表 (interactions_rating)
+
+```sql
+-- 已有唯一索引
+CREATE UNIQUE INDEX interactions_rating_moment_user ON interactions_rating(moment_id, user_id);
 ```
 
 ---

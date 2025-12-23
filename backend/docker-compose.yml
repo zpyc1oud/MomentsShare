@@ -22,7 +22,7 @@ services:
   # 3. Django 后端服务
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: bash -c "cp -n /app/defaults/default_avatar.png /app/media/ 2>/dev/null || true && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
       # ▼▼▼ 修改点 1：添加这行，把 media 文件夹存入 Docker 隐形保险箱 ▼▼▼

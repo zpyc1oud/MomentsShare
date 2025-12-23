@@ -30,7 +30,11 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://host.docker.internal:8000',
+        target: 'http://localhost:8000',
+        changeOrigin: true
+      },
+      '/media': {
+        target: 'http://localhost:8000',
         changeOrigin: true
       }
     }

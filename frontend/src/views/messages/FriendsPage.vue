@@ -160,7 +160,7 @@ const handleCancelSearch = () => {
 
 // 头像地址兜底
 const normalizeAvatar = (url) => {
-  if (!url) return '/default-avatar.png'
+  if (!url) return '/media/default_avatar.png'
 
   let finalUrl = url
   if (finalUrl.includes('host.docker.internal')) {

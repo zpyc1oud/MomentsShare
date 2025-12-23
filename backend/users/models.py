@@ -31,8 +31,7 @@ class UserManager(BaseUserManager):
 
 
 def default_avatar_path():
-    # Placeholder default avatar
-    return "avatars/default.png"
+    return "default_avatar.png"
 
 
 class User(AbstractBaseUser, PermissionsMixin):
