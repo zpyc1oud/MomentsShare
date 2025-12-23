@@ -22,7 +22,7 @@
         class="moment-image"
         @click.stop="previewImage(index)"
       >
-        <img :src="image.image_file" :alt="`图片${index + 1}`" />
+        <img :src="normalizeAvatar(image.image_file)" :alt="`图片${index + 1}`" />
         <span v-if="index === 3 && moment.images.length > 4" class="image-more">
           +{{ moment.images.length - 4 }}
         </span>
@@ -32,7 +32,7 @@
     <!-- 视频展示 -->
     <div v-if="moment.type === 'VIDEO' && moment.video_file" class="moment-video">
       <VideoPlayer 
-        :src="moment.video_file" 
+        :src="normalizeAvatar(moment.video_file)" 
         :show-controls="false"
         @click.stop
       />
@@ -130,8 +130,25 @@ const handleLike = async () => {
   }
 }
 
+// 头像地址兜底：
+// 1) 后端可能返回相对路径，需拼上域名
+// 2) 后端在容器中返回 host.docker.internal，宿主浏览器访问不到时，替换为 localhost
+const normalizeAvatar = (url) => {
+  if (!url) return '/default-avatar.png'
+
+  let finalUrl = url
+  if (finalUrl.includes('host.docker.internal')) {
+    finalUrl = finalUrl.replace('host.docker.internal', 'localhost')
+  }
+
+  if (finalUrl.startsWith('http')) return finalUrl
+
+  const origin = import.meta.env.VITE_API_ORIGIN || 'http://localhost:8000'
+  return `${origin}${finalUrl}`
+}
+
 const authorAvatar = computed(() => {
-  return props.moment.author?.avatar || '/default-avatar.png'
+  return normalizeAvatar(props.moment.author?.avatar)
 })
 
 const displayImages = computed(() => {

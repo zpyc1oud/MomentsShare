@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from django.db.models import Q
+from django.db.models import Q, Count
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -11,7 +11,7 @@ from moments.models import Moment
 from moments.serializers import MomentListSerializer
 from users.models import User
 from .permissions import IsStaffUser
-from .serializers import AdminTokenObtainPairSerializer
+from .serializers import AdminTokenObtainPairSerializer, AdminUserListSerializer, AdminCommentListSerializer
 
 
 @extend_schema(
@@ -85,16 +85,30 @@ class AdminContentDeleteView(generics.GenericAPIView):
 @extend_schema(
     tags=["管理后台"],
     summary="数据统计",
-    description="获取过去7天每日数据统计，包括日期、日活跃用户数、新增用户数、发帖数。",
+    description="获取过去N天每日数据统计，包括日期、日活跃用户数、新增用户数、发帖数。默认7天。",
+    parameters=[
+        OpenApiParameter(
+            name="days",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="统计天数 (默认7)",
+            required=False,
+        ),
+    ],
 )
 class AdminStatsView(generics.GenericAPIView):
     """管理员数据统计接口"""
     permission_classes = [IsStaffUser]
 
     def get(self, request, *args, **kwargs):
+        try:
+            days = int(request.query_params.get("days", 7))
+        except ValueError:
+            days = 7
+            
         today = date.today()
         stats_list = []
-        for i in range(7):
+        for i in range(days):
             current_date = today - timedelta(days=i)
             
             # Count new users for the day
@@ -120,4 +134,142 @@ class AdminStatsView(generics.GenericAPIView):
         
         # Sort by date ascending (optional, but often better for charts)
         stats_list.reverse()
-        return Response(stats_list)
+
+        # 添加内容类型分布统计
+        content_distribution = list(
+            Moment.objects.filter(is_deleted=False)
+            .values('type')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
+
+        # 格式化内容类型名称
+        type_mapping = {
+            'IMAGE': '图片动态',
+            'VIDEO': '视频动态',
+            'TEXT': '纯文字'
+        }
+
+        formatted_distribution = []
+        for item in content_distribution:
+            type_name = type_mapping.get(item['type'], item['type'])
+            formatted_distribution.append({
+                'type': type_name,
+                'count': item['count']
+            })
+
+        # 返回包含内容分布的完整统计数据
+        return Response({
+            'daily_stats': stats_list,
+            'content_distribution': formatted_distribution
+        })
+
+
+@extend_schema(
+    tags=["管理后台"],
+    summary="用户列表",
+    description="获取所有用户列表。支持按手机号或昵称搜索。",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="搜索关键词（手机号或昵称）",
+            required=False,
+        ),
+    ],
+)
+class AdminUserListView(generics.ListAPIView):
+    """管理员用户列表接口"""
+    serializer_class = AdminUserListSerializer
+    permission_classes = [IsStaffUser]
+
+    def get_queryset(self):
+        qs = User.objects.all().order_by("-created_at")
+        search = self.request.query_params.get("search")
+        if search:
+            qs = qs.filter(Q(phone__icontains=search) | Q(nickname__icontains=search))
+        return qs
+
+
+@extend_schema(
+    tags=["管理后台"],
+    summary="封禁/解封用户",
+    description="修改用户状态（is_active）。",
+    request=None,
+)
+class AdminUserStatusView(generics.GenericAPIView):
+    """管理员修改用户状态接口"""
+    permission_classes = [IsStaffUser]
+
+    def post(self, request, pk, *args, **kwargs):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"detail": "用户不存在"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Toggle status
+        user.is_active = not user.is_active
+        user.save(update_fields=["is_active"])
+        
+        status_text = "已解封" if user.is_active else "已封禁"
+        return Response({"detail": f"用户{status_text}", "is_active": user.is_active})
+
+
+@extend_schema(
+    tags=["管理后台"],
+    summary="评论列表",
+    description="获取所有评论列表。支持按用户ID或动态ID过滤。",
+    parameters=[
+        OpenApiParameter(
+            name="user_id",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="按用户ID过滤",
+            required=False,
+        ),
+        OpenApiParameter(
+            name="moment_id",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="按动态ID过滤",
+            required=False,
+        ),
+        OpenApiParameter(
+            name="keyword",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="搜索评论内容",
+            required=False,
+        ),
+    ],
+)
+class AdminCommentListView(generics.ListAPIView):
+    """管理员评论列表接口"""
+    serializer_class = AdminCommentListSerializer
+    permission_classes = [IsStaffUser]
+
+    def get_queryset(self):
+        qs = Comment.objects.all().order_by("-created_at")
+        user_id = self.request.query_params.get("user_id")
+        moment_id = self.request.query_params.get("moment_id")
+        keyword = self.request.query_params.get("keyword")
+        
+        if user_id:
+            qs = qs.filter(author_id=user_id)
+        if moment_id:
+            qs = qs.filter(moment_id=moment_id)
+        if keyword:
+            qs = qs.filter(content__icontains=keyword)
+        return qs
+
+
+@extend_schema(
+    tags=["管理后台"],
+    summary="删除评论",
+    description="物理删除指定评论。",
+)
+class AdminCommentDeleteView(generics.DestroyAPIView):
+    """管理员删除评论接口"""
+    permission_classes = [IsStaffUser]
+    queryset = Comment.objects.all()

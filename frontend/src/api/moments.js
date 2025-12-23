@@ -52,9 +52,26 @@ export const momentsApi = {
     return request.get('/moments/my/', { params: { page } })
   },
 
+  // 获取指定用户的动态列表
+  getUserMoments(userId, page = 1) {
+    return request.get(`/moments/user/${userId}/`, { params: { page } })
+  },
+
   // 搜索动态
   search(params) {
     return request.get('/moments/search/', { params })
+  },
+
+  // 获取搜索建议
+  getSuggestions(keyword, limit = 10) {
+    return request.get('/moments/search/suggestions/', { 
+      params: { q: keyword, limit } 
+    })
+  },
+
+  // 获取热门搜索
+  getHotSearch() {
+    return request.get('/moments/search/hot/')
   },
 
   // 获取评论列表

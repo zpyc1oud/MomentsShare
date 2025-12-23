@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from core.sensitive_words import contains_sensitive_word
+# 1. 修改导入：引入我们新建的 DFA 过滤器实例 gfw
+from core.dfa_filter import gfw
 from users.serializers import UserInfoSerializer
 from .models import Image, Moment, Tag
 from .tasks import transcode_video
@@ -36,8 +37,15 @@ class MomentCreateSerializer(serializers.ModelSerializer):
         images = self.initial_data.getlist("images") if hasattr(self.initial_data, "getlist") else attrs.get("images")
         video = attrs.get("video")
         content = attrs.get("content", "")
-        if contains_sensitive_word(content):
-            raise serializers.ValidationError({"content": "包含敏感内容"})
+        
+        # 2. 修改验证逻辑：使用 DFA 算法检测
+        # gfw.exists 返回两个值：(是否敏感, 敏感词是什么)
+        is_sensitive, word = gfw.exists(content)
+        if is_sensitive:
+            # 可以在这里把 word 打印到日志里方便调试，但返回给用户时建议模糊处理
+            # print(f"拦截敏感词: {word}") 
+            raise serializers.ValidationError({"content": f"发布失败：内容包含违规信息，请文明发言。"})
+
         if moment_type == Moment.MomentType.IMAGE:
             if video:
                 raise serializers.ValidationError({"video": "图文动态不能上传视频"})
@@ -120,4 +128,3 @@ class MomentListSerializer(serializers.ModelSerializer):
 class MomentDetailSerializer(MomentListSerializer):
     class Meta(MomentListSerializer.Meta):
         fields = MomentListSerializer.Meta.fields
-

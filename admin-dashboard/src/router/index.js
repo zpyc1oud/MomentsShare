@@ -28,6 +28,36 @@ const routes = [
         name: 'Dashboard',
         component: () => import('@/views/Dashboard.vue'),
         meta: { title: '数据看板' }
+      },
+      {
+        path: 'content/moments',
+        name: 'ContentMoments',
+        component: () => import('@/views/content/Moments.vue'),
+        meta: { title: '动态管理' }
+      },
+      {
+        path: 'content/comments',
+        name: 'ContentComments',
+        component: () => import('@/views/content/Comments.vue'),
+        meta: { title: '评论管理' }
+      },
+      {
+        path: 'user/list',
+        name: 'UserList',
+        component: () => import('@/views/user/UserList.vue'),
+        meta: { title: '用户列表' }
+      },
+      {
+        path: 'user/growth',
+        name: 'UserGrowth',
+        component: () => import('@/views/user/Growth.vue'),
+        meta: { title: '增长分析' }
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: () => import('@/views/Settings.vue'),
+        meta: { title: '系统设置' }
       }
     ]
   },
