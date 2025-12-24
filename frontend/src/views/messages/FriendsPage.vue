@@ -3,24 +3,27 @@
     <div class="friends-page">
       <!-- 快速操作栏 -->
       <div class="quick-actions">
-        <van-grid :column-num="3" :gutter="12">
-          <van-grid-item
-            icon="plus"
-            text="添加好友"
-            @click="goToAddFriend"
-          />
-          <van-grid-item
-            icon="friends-o"
-            text="好友申请"
-            @click="goToFriendRequests"
-            :badge="pendingCount > 0 ? pendingCount : null"
-          />
-          <van-grid-item
-            icon="search"
-            text="搜索用户"
-            @click="goToSearch"
-          />
-        </van-grid>
+        <div class="action-card" @click="goToAddFriend">
+          <div class="icon-wrapper icon-add">
+            <van-icon name="plus" />
+          </div>
+          <span class="action-text">添加好友</span>
+        </div>
+        
+        <div class="action-card" @click="goToFriendRequests">
+          <div class="icon-wrapper icon-request">
+            <van-icon name="friends-o" />
+            <div v-if="pendingCount > 0" class="badge">{{ pendingCount }}</div>
+          </div>
+          <span class="action-text">好友申请</span>
+        </div>
+
+        <div class="action-card" @click="goToSearch">
+          <div class="icon-wrapper icon-search">
+            <van-icon name="search" />
+          </div>
+          <span class="action-text">搜索用户</span>
+        </div>
       </div>
 
       <div class="divider"></div>
@@ -215,7 +218,80 @@ onMounted(() => {
 }
 
 .quick-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-md;
   margin-bottom: $spacing-md;
+}
+
+.action-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  background: $glass-bg;
+  backdrop-filter: $glass-blur;
+  border: $glass-border-light;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  cursor: pointer;
+  transition: all $transition-fast;
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 4px;
+  position: relative;
+  
+  &.icon-add {
+    background: rgba($pink-primary, 0.15);
+    color: $pink-primary;
+  }
+  
+  &.icon-request {
+    background: rgba($lavender, 0.15);
+    color: $lavender;
+  }
+  
+  &.icon-search {
+    background: rgba($baby-blue, 0.15);
+    color: $baby-blue;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: $error-color;
+  color: white;
+  font-size: 10px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: $radius-full;
+  border: 2px solid #fff;
+  box-sizing: content-box;
+}
+
+.action-text {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  font-weight: $font-weight-medium;
 }
 
 .divider {
