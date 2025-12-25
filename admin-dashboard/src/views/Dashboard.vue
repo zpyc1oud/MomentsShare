@@ -392,7 +392,7 @@ const fetchRecentMoments = async () => {
     recentMoments.value = momentsData.map(item => ({
       id: item.id,
       user: item.author?.nickname || item.author?.username || '用户' + item.id,
-      content: item.text || (item.images && item.images.length > 0 ? '[图片动态]' : '[文字动态]'),
+      content: item.content || (item.images && item.images.length > 0 ? '[图片动态]' : '[文字动态]'),
       time: formatTimeAgo(item.created_at)
     }))
 
