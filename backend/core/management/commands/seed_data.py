@@ -33,6 +33,17 @@ from interactions.models import Comment, Like, Rating, Message
 
 # ========== 测试用户配置 ==========
 TEST_USERS = [
+    # 管理员账号
+    {
+        "phone": "13500000000",
+        "username": "admin",
+        "nickname": "管理员",
+        "password": "admin123",
+        "avatar_seed": "admin",
+        "is_staff": True,
+        "is_superuser": True
+    },
+    # 普通用户账号
     {
         "phone": "13800000001",
         "username": "alice",
@@ -329,32 +340,40 @@ class Command(BaseCommand):
         users = []
         
         for user_data in TEST_USERS:
+            # 提取额外的字段
+            is_staff = user_data.pop('is_staff', False)
+            is_superuser = user_data.pop('is_superuser', False)
+            avatar_seed = user_data.pop('avatar_seed', None)
+            
             user, created = User.objects.get_or_create(
                 phone=user_data['phone'],
                 defaults={
                     'username': user_data['username'],
                     'nickname': user_data['nickname'],
+                    'is_staff': is_staff,
+                    'is_superuser': is_superuser
                 }
             )
             
             if created:
                 user.set_password(user_data['password'])
+                user.save()
                 
                 # 下载并设置头像
-                if not skip_media:
-                    avatar_url = get_avatar_url(user_data['avatar_seed'])
-                    avatar_data = self._download_image(avatar_url)
-                    if avatar_data:
-                        user.avatar.save(
-                            f"avatar_{user_data['username']}.png",
-                            ContentFile(avatar_data),
-                            save=False
-                        )
+                if not skip_media and avatar_seed:
+                    avatar_url = f"https://api.dicebear.com/7.x/avataaars/png?seed={avatar_seed}"
+                    avatar_content = self._download_image(avatar_url)
+                    if avatar_content:
+                        user.avatar.save(f"{user.username}_avatar.png", ContentFile(avatar_content))
                 
-                user.save()
-                self.stdout.write(f"    ✅ 创建用户: {user.nickname} ({user.phone})")
+                self.stdout.write(self.style.SUCCESS(f'    ✅ 创建用户: {user.nickname} ({user.phone})'))
             else:
-                self.stdout.write(f"    ⏭️ 用户已存在: {user.nickname} ({user.phone})")
+                # 即使已存在，也更新权限字段
+                if is_staff != user.is_staff or is_superuser != user.is_superuser:
+                    user.is_staff = is_staff
+                    user.is_superuser = is_superuser
+                    user.save()
+                self.stdout.write(f'    ℹ️ 用户已存在: {user.nickname}')
             
             users.append(user)
         
